@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* CSS Variables for consistency */
+:root {
+  --bg: #f8f9fa;
+  --panel: #ffffff;
+  --text: #1a1a1a;
+  --muted: #6c757d;
+  --border: #dee2e6;
+}
+
+/* Base styles */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure map container has proper dimensions */
+.maplibregl-map {
+  width: 100%;
+  height: 100%;
+}
+
+/* Responsive layout adjustments */
+@media (max-width: 980px) {
+  main {
+    flex-direction: column !important;
+  }
+}
+
