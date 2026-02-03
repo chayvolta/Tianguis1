@@ -44,6 +44,7 @@ function AppContent() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showCheckinModal, setShowCheckinModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showTip, setShowTip] = useState(false);
 
   // Load GeoJSON data
   useEffect(() => {
@@ -232,9 +233,38 @@ function AppContent() {
           />
 
           {/* Map hint */}
-          <div className="absolute left-3 bottom-3 text-xs text-[#0f172a] bg-white/85 border border-[rgba(15,23,42,0.1)] px-2.5 py-2 rounded-lg backdrop-blur-sm">
-            Tip: arrastra con botón derecho (o Ctrl+drag) para rotar. Shift+drag
-            para pitch.
+          {/* Map hint */}
+          <div className="absolute left-3 bottom-3 z-10 flex flex-col items-start gap-2">
+             {/* Info Button */}
+            <button
+              onClick={() => setShowTip(!showTip)}
+              className={`
+                w-8 h-8 flex items-center justify-center rounded-lg border bg-white cursor-pointer transition shadow-sm
+                ${showTip ? 'bg-primary border-primary text-white' : 'border-gray-300 text-gray-600 hover:text-gray-900'}
+              `}
+              title={showTip ? "Ocultar ayuda" : "Mostrar ayuda de navegación"}
+              aria-label="Ayuda de navegación"
+              aria-expanded={showTip}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+            </button>
+
+            {/* Tip Content */}
+            <div 
+              className={`
+                text-xs text-[#0f172a] bg-white/95 border border-gray-200 px-3 py-2.5 rounded-lg backdrop-blur-sm shadow-lg max-w-[200px] transition-all duration-300 origin-bottom-left
+                ${showTip ? 'opacity-100 scale-100' : 'opacity-0 scale-95 hidden'}
+              `}
+            >
+              <p className="leading-relaxed">
+                <strong>Rotar:</strong> Clic derecho + arrastrar<br/>
+                <strong>Inclinar:</strong> Shift + arrastrar
+              </p>
+            </div>
           </div>
         </section>
       </main>

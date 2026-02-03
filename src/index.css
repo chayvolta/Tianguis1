@@ -25,7 +25,13 @@ body,
 }
 
 body {
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    Arial,
+    sans-serif;
   color: var(--text);
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
@@ -45,3 +51,34 @@ body {
   }
 }
 
+/* Custom Popup Styles - Minimal Design */
+.maplibregl-popup-content {
+  padding: 0 !important;
+  border-radius: 12px !important;
+  overflow: visible !important;
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+.maplibregl-popup-close-button {
+  color: #94a3b8 !important; /* Slate-400 */
+  font-size: 18px !important;
+  top: 6px !important;
+  right: 6px !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  z-index: 10;
+  padding: 4px !important;
+  line-height: 1 !important;
+  border-radius: 4px !important;
+  transition: all 0.2s ease;
+}
+
+.maplibregl-popup-close-button:hover {
+  color: #ef4444 !important; /* Red-500 */
+  background: #fee2e2 !important; /* Red-100 */
+}

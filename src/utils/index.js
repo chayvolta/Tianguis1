@@ -97,9 +97,41 @@ export const getBounds = (coords) => {
 /**
  * Generates a placeholder image URL based on a seed string
  * @param {string} seed - Seed string
+ * @param {string} [size='400/300'] - Image size
+ * @param {number} [salt=0] - Salt to vary the image for the same seed
  * @returns {string} Image URL
  */
-export const getPlaceholderImage = (seed) => {
+export const getPlaceholderImage = (seed, size = '400/300', salt = 0) => {
   const seedValue = seed.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
-  return `https://picsum.photos/seed/${seedValue}/400/300`;
+  return `https://picsum.photos/seed/${seedValue + salt}/${size}`;
+};
+
+/**
+ * Returns detailed mock data for a site
+ * @param {Object} feature - The site feature
+ * @returns {Object} Site details (images, description, etc.)
+ */
+export const getSiteDetails = (feature) => {
+  const siteName = feature?.properties?.__label || 'Sitio';
+  const folder = feature?.properties?.__folder || 'Acapulco';
+
+  // Generate 3 variations of images
+  const images = [
+    getPlaceholderImage(siteName, '800/600', 0),
+    getPlaceholderImage(siteName, '800/600', 100),
+    getPlaceholderImage(siteName, '800/600', 200),
+  ];
+
+  // Mock description in Spanish
+  const description = `
+    <p><strong>${siteName}</strong> es un punto de interés destacado en la zona de ${folder}.</p>
+    <p>Este lugar ofrece una vista privilegiada y es parte del patrimonio cultural y turístico de Acapulco. Ideal para visitar en familia y conocer más sobre la historia local.</p>
+    <p>Cuenta con acceso facilitado y cercanía a otros puntos turísticos importantes. Se recomienda llevar ropa cómoda y cámara fotográfica para capturar los hermosos paisajes que ofrece este sitio.</p>
+  `;
+
+  return {
+    images,
+    description,
+    imagesCount: images.length,
+  };
 };

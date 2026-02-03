@@ -14,6 +14,7 @@ import { getFirstCoord2D, getBounds, escapeHtml } from '../utils';
 const Map = ({ onSiteSelect, ref }) => {
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
+  const popupRef = useRef(null);
   const {
     allFeatures,
     filteredIds,
@@ -301,6 +302,62 @@ const Map = ({ onSiteSelect, ref }) => {
     }
   }, [allFeatures]);
 
+  // Sync Popup with selectedId
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    // cleanup previous popup
+    if (popupRef.current) {
+      popupRef.current.remove();
+      popupRef.current = null;
+    }
+
+    if (selectedId === null) return;
+
+    // Find feature
+    const feature = allFeatures.find((f) => f.id === selectedId);
+    if (!feature) return;
+
+    const coords = getFirstCoord2D(feature.geometry);
+    if (!coords) return;
+
+    const label = feature.properties.__label;
+    const folder = feature.properties.__folder;
+
+    // Create custom popup content
+    // Create custom popup content - Minimal Design
+    const popupContent = `
+      <div class="popup-card w-[220px] bg-white p-3.5 flex items-start gap-3 rounded-xl font-sans">
+        <div class="shrink-0 mt-0.5 text-primary bg-primary/10 p-1.5 rounded-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <h3 class="font-bold text-sm text-gray-900 leading-tight mb-0.5 break-words">${escapeHtml(label)}</h3>
+          <p class="text-xs text-gray-500 font-medium uppercase tracking-wide truncate">${escapeHtml(folder)}</p>
+        </div>
+      </div>
+    `;
+
+    // Create and add popup
+    const popup = new maplibregl.Popup({
+      closeButton: true,
+      closeOnClick: false,
+      offset: 14,
+      maxWidth: 'none', // Allow flex width
+      className: 'custom-popup'
+    })
+      .setLngLat(coords)
+      .setHTML(popupContent)
+      .addTo(map);
+
+    popupRef.current = popup;
+
+  }, [selectedId, allFeatures]);
+
   // Update selected feature state
   useEffect(() => {
     const map = mapRef.current;
@@ -447,12 +504,7 @@ export const flyToSite = (map, feature) => {
   }
 
   // Show popup
-  new maplibregl.Popup({ closeButton: false, closeOnClick: true, offset: 12 })
-    .setLngLat(coords)
-    .setHTML(
-      `<strong>${escapeHtml(feature.properties.__label)}</strong><div style="font-size:12px;opacity:.8">${escapeHtml(feature.properties.__folder)}</div>`
-    )
-    .addTo(map);
+  // Popup is now managed by Map component state
 };
 
 // Export reset view function

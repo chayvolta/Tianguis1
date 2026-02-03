@@ -106,7 +106,13 @@ export const AuthProvider = ({ children }) => {
 
       return data;
     } catch (err) {
-      setError(err.message);
+      console.error('Signup error:', err);
+      // Handle specific Supabase rate limit error
+      if (err.message?.includes('Rate limit') || err.status === 429) {
+        setError('Límite de envíos excedido. Por favor espera unos minutos antes de intentar registrarte de nuevo.');
+      } else {
+        setError(err.message);
+      }
       throw err;
     }
   }, []);
