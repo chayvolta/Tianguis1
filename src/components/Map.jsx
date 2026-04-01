@@ -5,6 +5,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { useAppContext } from '../context/AppContext';
 import { MAP_CONFIG, PREFERS_REDUCED_MOTION } from '../constants';
 import { getFirstCoord2D, getBounds, escapeHtml } from '../utils';
+import { useLayerData } from '../hooks/useLayerData';
 
 /**
  * Map component - MapLibre GL map with 3D terrain
@@ -15,13 +16,17 @@ const Map = ({ onSiteSelect, ref }) => {
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   const popupRef = useRef(null);
+  const loadedSourcesRef = useRef(new Set());
   const {
     allFeatures,
     filteredIds,
     selectedId,
     currentBasemap,
     layers,
+    dynamicLayers,
+    openFeatureCard,
   } = useAppContext();
+  const { layers: layerDataList } = useLayerData();
 
   // Debug logs
   useEffect(() => {
@@ -385,7 +390,15 @@ const Map = ({ onSiteSelect, ref }) => {
     layers.forEach((layer) => {
       const visibility = layer.visible ? 'visible' : 'none';
       
-      if (layer.id === 'cip-limite') {
+      if (layer.id === 'sites') {
+        // Toggle sites layer visibility
+        if (map.getLayer('sites-points')) {
+          map.setLayoutProperty('sites-points', 'visibility', visibility);
+        }
+        if (map.getLayer('sites-labels')) {
+          map.setLayoutProperty('sites-labels', 'visibility', visibility);
+        }
+      } else if (layer.id === 'cip-limite') {
         // Update visibility
         if (map.getLayer('cip-limite-fill')) {
           map.setLayoutProperty('cip-limite-fill', 'visibility', visibility);
@@ -406,9 +419,241 @@ const Map = ({ onSiteSelect, ref }) => {
           map.setPaintProperty('senderos-paz-line', 'line-color', '#39ff14');
           map.setPaintProperty('senderos-paz-line', 'line-width', 3);
         }
+      } else if (layer.id.startsWith('points-') || layer.id.startsWith('polygons-')) {
+        // Handle dynamic layers
+        const pointLayerId = `${layer.id}-points`;
+        const fillLayerId = `${layer.id}-fill`;
+        const lineLayerId = `${layer.id}-line`;
+
+        if (map.getLayer(pointLayerId)) {
+          map.setLayoutProperty(pointLayerId, 'visibility', visibility);
+        }
+        if (map.getLayer(fillLayerId)) {
+          map.setLayoutProperty(fillLayerId, 'visibility', visibility);
+        }
+        if (map.getLayer(lineLayerId)) {
+          map.setLayoutProperty(lineLayerId, 'visibility', visibility);
+        }
       }
     });
   }, [layers]);
+
+  // Consolidated effect: Load dynamic layers + setup click handlers
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !map.isStyleLoaded()) return;
+
+    dynamicLayers.forEach((layer) => {
+      const sourceId = layer.id;
+      
+      // 1. Add source if it doesn't exist
+      if (!map.getSource(sourceId)) {
+        try {
+          map.addSource(sourceId, {
+            type: 'geojson',
+            data: layer.path,
+          });
+          console.log(`Added source: ${sourceId}`);
+        } catch (err) {
+          console.error(`Error adding source ${sourceId}:`, err);
+        }
+      }
+
+      const isPoint = layer.type === 'Points';
+      
+      if (isPoint) {
+        // Add point layer
+        const pointLayerId = `${sourceId}-points`;
+        if (!map.getLayer(pointLayerId)) {
+          try {
+            map.addLayer({
+              id: pointLayerId,
+              type: 'circle',
+              source: sourceId,
+              layout: {
+                visibility: layer.visible ? 'visible' : 'none',
+              },
+              paint: {
+                'circle-radius': 8,
+                'circle-color': layer.color,
+                'circle-stroke-color': '#ffffff',
+                'circle-stroke-width': 2,
+                'circle-opacity': 0.9,
+                'circle-blur': 0.5,
+              },
+            });
+            console.log(`Added point layer: ${pointLayerId}`);
+          } catch (err) {
+            console.error(`Error adding point layer ${pointLayerId}:`, err);
+          }
+        }
+
+        // 2. Set up click handler immediately after layer creation
+        if (map.getLayer(pointLayerId)) {
+          // Remove previous handlers to avoid duplicates
+          map.off('click', pointLayerId);
+          map.off('mouseenter', pointLayerId);
+          map.off('mouseleave', pointLayerId);
+          
+          map.on('click', pointLayerId, (e) => {
+            console.log('Point clicked:', sourceId, e.features);
+            const feature = e.features && e.features[0];
+            if (!feature) return;
+            
+            const coords = getFirstCoord2D(feature.geometry);
+            if (!coords) return;
+
+            // Normalize feature shape expected by DetailCard
+            const normalized = {
+              id: feature.id || `${sourceId}-${Math.random().toString(36).slice(2, 9)}`,
+              geometry: feature.geometry,
+              properties: {
+                ...feature.properties,
+                __label: feature.properties.Nombre || layer.name,
+                __folder: layer.name,
+              },
+            };
+
+            console.log('Opening DetailCard for:', normalized);
+            openFeatureCard(normalized);
+            
+            // Fly to location
+            map.flyTo({
+              center: coords,
+              zoom: Math.max(map.getZoom(), 16),
+              pitch: Math.max(map.getPitch(), MAP_CONFIG.pitch),
+              bearing: map.getBearing(),
+              speed: 1.15,
+              curve: 1.35,
+              duration: PREFERS_REDUCED_MOTION ? 0 : 800,
+            });
+          });
+
+          map.on('mouseenter', pointLayerId, () => {
+            map.getCanvas().style.cursor = 'pointer';
+          });
+          map.on('mouseleave', pointLayerId, () => {
+            map.getCanvas().style.cursor = '';
+          });
+        }
+      } else {
+        // Add polygon fill layer
+        const fillLayerId = `${sourceId}-fill`;
+        if (!map.getLayer(fillLayerId)) {
+          try {
+            map.addLayer({
+              id: fillLayerId,
+              type: 'fill',
+              source: sourceId,
+              layout: {
+                visibility: layer.visible ? 'visible' : 'none',
+              },
+              paint: {
+                'fill-color': layer.color,
+                'fill-opacity': 0.35,
+              },
+            });
+            console.log(`Added fill layer: ${fillLayerId}`);
+          } catch (err) {
+            console.error(`Error adding fill layer ${fillLayerId}:`, err);
+          }
+        }
+
+        // Add polygon line layer
+        const lineLayerId = `${sourceId}-line`;
+        if (!map.getLayer(lineLayerId)) {
+          try {
+            map.addLayer({
+              id: lineLayerId,
+              type: 'line',
+              source: sourceId,
+              layout: {
+                visibility: layer.visible ? 'visible' : 'none',
+              },
+              paint: {
+                'line-color': layer.color,
+                'line-width': 2,
+              },
+            });
+            console.log(`Added line layer: ${lineLayerId}`);
+          } catch (err) {
+            console.error(`Error adding line layer ${lineLayerId}:`, err);
+          }
+        }
+
+        // 2. Set up click handler for polygons immediately after layer creation
+        if (map.getLayer(fillLayerId)) {
+          // Remove previous handlers
+          map.off('click', fillLayerId);
+          map.off('mouseenter', fillLayerId);
+          map.off('mouseleave', fillLayerId);
+          
+          map.on('click', fillLayerId, (e) => {
+            console.log('Polygon clicked:', sourceId, e.features);
+            const feature = e.features && e.features[0];
+            if (!feature) return;
+
+            // Compute center of polygon
+            let coords;
+            if (feature.geometry.type === 'MultiPolygon') {
+              const polygon = feature.geometry.coordinates[0][0];
+              let sumLng = 0, sumLat = 0;
+              polygon.forEach(point => {
+                sumLng += point[0];
+                sumLat += point[1];
+              });
+              coords = [sumLng / polygon.length, sumLat / polygon.length];
+            } else if (feature.geometry.type === 'Polygon') {
+              const polygon = feature.geometry.coordinates[0];
+              let sumLng = 0, sumLat = 0;
+              polygon.forEach(point => {
+                sumLng += point[0];
+                sumLat += point[1];
+              });
+              coords = [sumLng / polygon.length, sumLat / polygon.length];
+            } else {
+              coords = getFirstCoord2D(feature.geometry);
+            }
+
+            if (!coords) return;
+
+            const normalized = {
+              id: feature.id || `${sourceId}-${Math.random().toString(36).slice(2, 9)}`,
+              geometry: feature.geometry,
+              properties: {
+                ...feature.properties,
+                __label: feature.properties.Nom_o_nota || layer.name,
+                __folder: layer.name.replace(/_/g, ' '),
+              },
+            };
+
+            console.log('Opening DetailCard for polygon:', normalized);
+            openFeatureCard(normalized);
+            
+            // Fly to polygon center
+            map.flyTo({
+              center: coords,
+              zoom: Math.max(map.getZoom(), 16),
+              pitch: Math.max(map.getPitch(), MAP_CONFIG.pitch),
+              bearing: map.getBearing(),
+              speed: 1.15,
+              curve: 1.35,
+              duration: PREFERS_REDUCED_MOTION ? 0 : 800,
+            });
+          });
+
+          map.on('mouseenter', fillLayerId, () => {
+            map.getCanvas().style.cursor = 'pointer';
+          });
+          map.on('mouseleave', fillLayerId, () => {
+            map.getCanvas().style.cursor = '';
+          });
+        }
+      }
+
+      loadedSourcesRef.current.add(sourceId);
+    });
+  }, [dynamicLayers, openFeatureCard]);
 
   // Update filter
   useEffect(() => {

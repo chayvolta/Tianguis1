@@ -3,14 +3,14 @@ import { AppProvider, useAppContext } from './context/AppContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { useGeoJSON } from './hooks/useGeoJSON';
 import { useHashState } from './hooks/useHashState';
+import { useLayerData } from './hooks/useLayerData';
 import ErrorBoundary from './components/ErrorBoundary';
 import Header from './components/Header';
-import Timeline from './components/Timeline';
 import DetailCard from './components/DetailCard';
 import Map, { flyToSite, resetMapView, toggle3D } from './components/Map';
 import MapControls from './components/MapControls';
 import BasemapControls from './components/BasemapControls';
-import LayerControls from './components/LayerControls';
+import LayerLegend from './components/LayerLegend';
 import LoginModal from './components/Auth/LoginModal';
 import UserMenu from './components/Auth/UserMenu';
 import CheckinModal from './components/Checkin/CheckinModal';
@@ -34,9 +34,13 @@ function AppContent() {
     selectSite,
     clearSelection,
     setCurrentBasemap,
+    setDynamicLayers,
+    externalFeature,
+    setExternalFeature,
   } = useAppContext();
 
   const { data: geoJsonData, loading, error } = useGeoJSON();
+  const { layers: layerDataList } = useLayerData();
   const { siteId: hashSiteId, writeHashSiteId, clearHash } = useHashState();
   const { isAuthenticated } = useAuth();
   const mapRef = useRef(null);
@@ -53,6 +57,13 @@ function AppContent() {
       setFilteredIds(geoJsonData.map((f) => f.id));
     }
   }, [geoJsonData, setAllFeatures, setFilteredIds]);
+
+  // Load dynamic layers
+  useEffect(() => {
+    if (layerDataList.length > 0) {
+      setDynamicLayers(layerDataList);
+    }
+  }, [layerDataList, setDynamicLayers]);
 
   // Handle deep linking
   useEffect(() => {
@@ -91,6 +102,7 @@ function AppContent() {
   // Handle close card
   const handleCloseCard = useCallback(() => {
     clearSelection();
+    setExternalFeature?.(null);
     clearHash();
   }, [clearSelection, clearHash]);
 
@@ -185,27 +197,22 @@ function AppContent() {
       />
 
       {/* Main layout */}
-      <main className="flex-1 flex flex-col md:flex-row gap-3 p-3 overflow-hidden">
-        {/* Left panel - Timeline or Card */}
-        <section
-          className="w-[38%] min-w-[340px] bg-white border border-gray-200 rounded-2xl shadow-custom overflow-hidden flex flex-col md:w-[38%] max-md:w-full max-md:h-[52%]"
-          aria-label="Panel de sitios"
-        >
-          {isCardVisible ? (
+      <main className="flex-1 flex flex-col overflow-hidden">
+        {/* Detail Card - Floating */}
+        {isCardVisible && (
+          <div className="absolute top-20 right-3 z-20 w-[380px] max-md:w-[calc(100%-24px)]">
             <DetailCard 
-              feature={selectedFeature} 
+              feature={selectedFeature || externalFeature}
               onClose={handleCloseCard}
               onOpenCheckin={() => setShowCheckinModal(true)}
               onOpenLogin={() => setShowLoginModal(true)}
             />
-          ) : (
-            <Timeline onSelectSite={handleSelectSite} />
-          )}
-        </section>
+          </div>
+        )}
 
-        {/* Right panel - Map */}
+        {/* Map - Full Screen */}
         <section
-          className="flex-1 border border-gray-200 rounded-2xl overflow-hidden relative shadow-custom bg-gray-200 max-md:h-[48%]"
+          className="flex-1 overflow-hidden relative bg-gray-200"
           aria-label="Mapa 3D"
         >
           <Map
@@ -227,8 +234,8 @@ function AppContent() {
           />
 
           {/* Layer controls */}
-          <LayerControls
-            layers={layers}
+          <LayerLegend
+            visibleLayers={layers.filter((l) => l.visible).map((l) => l.id)}
             onToggle={toggleLayer}
           />
 

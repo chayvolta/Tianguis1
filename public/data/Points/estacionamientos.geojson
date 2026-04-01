@@ -1,0 +1,123 @@
+{
+  "type": "FeatureCollection",
+  "name": "estacionamientos",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -103.48963896351549,
+          0.00015195104588110992
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -103.48963896348452,
+          0.00015195528527647397
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -103.48963896407282,
+          0.00015195980521993043
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -103.48963894499322,
+          0.00015197706353074802
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -103.48963893566555,
+          0.00015196421472986506
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -103.48963895663415,
+          0.00015197770253285012
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -103.48963895603407,
+          0.00015198650258028235
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -103.48963901690578,
+          0.00015194449307629024
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -103.48963899174943,
+          0.0001519111263040672
+        ]
+      }
+    }
+  ]
+}

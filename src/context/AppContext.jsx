@@ -14,18 +14,35 @@ export const AppProvider = ({ children }) => {
   const [selectedId, setSelectedId] = useState(null);
   const [isCardVisible, setIsCardVisible] = useState(false);
   const [currentBasemap, setCurrentBasemap] = useState('satellite');
-  const [layers, setLayers] = useState([
+  const [staticLayers, setStaticLayers] = useState([
+    { id: 'sites', name: 'Sitios', visible: true, color: '#e6281a' },
     { id: 'cip-limite', name: 'Límite CIP', visible: false, color: '#ff0000' },
     { id: 'senderos-paz', name: 'Senderos de Paz', visible: false, color: '#39ff14' },
   ]);
+  const [dynamicLayers, setDynamicLayers] = useState([]);
+  const [externalFeature, setExternalFeature] = useState(null);
+
+  // Combine static and dynamic layers
+  const layers = useMemo(() => [...staticLayers, ...dynamicLayers], [staticLayers, dynamicLayers]);
 
   // Toggle layer visibility
   const toggleLayer = useCallback((layerId) => {
-    setLayers((prev) =>
-      prev.map((layer) =>
-        layer.id === layerId ? { ...layer, visible: !layer.visible } : layer
-      )
-    );
+    // Check if it's a dynamic layer
+    const isDynamic = layerId.startsWith('points-') || layerId.startsWith('polygons-');
+    
+    if (isDynamic) {
+      setDynamicLayers((prev) =>
+        prev.map((layer) =>
+          layer.id === layerId ? { ...layer, visible: !layer.visible } : layer
+        )
+      );
+    } else {
+      setStaticLayers((prev) =>
+        prev.map((layer) =>
+          layer.id === layerId ? { ...layer, visible: !layer.visible } : layer
+        )
+      );
+    }
   }, []);
 
   // Memoized selected feature
@@ -50,6 +67,12 @@ export const AppProvider = ({ children }) => {
     setIsCardVisible(false);
   }, []);
 
+  // Open a feature in the central DetailCard (from external layer clicks)
+  const openFeatureCard = useCallback((feature) => {
+    setExternalFeature(feature);
+    setIsCardVisible(true);
+  }, []);
+
   // Context value with memoization to prevent unnecessary re-renders
   const value = useMemo(
     () => ({
@@ -67,9 +90,16 @@ export const AppProvider = ({ children }) => {
       setFilteredIds,
       selectSite,
       clearSelection,
+      openFeatureCard,
+      setExternalFeature,
       setCurrentBasemap,
       layers,
       toggleLayer,
+      staticLayers,
+      dynamicLayers,
+      setDynamicLayers,
+      // External feature that may be opened from map popups
+      externalFeature,
     }),
     [
       allFeatures,
@@ -81,7 +111,10 @@ export const AppProvider = ({ children }) => {
       currentBasemap,
       selectSite,
       clearSelection,
-      layers,
+      openFeatureCard,
+      setExternalFeature,
+      staticLayers,
+      dynamicLayers,
       toggleLayer,
     ]
   );

@@ -1,0 +1,188 @@
+{
+  "type": "FeatureCollection",
+  "name": "BH_recorridos",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": null,
+        "Nombre": "Fuerte de San Diego"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -103.48963890827154,
+          0.00015197530372584303
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": null,
+        "Nombre": "Museo de las 8 regiones"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -103.48963892547584,
+          0.00015197454138783965
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": null,
+        "Nombre": "Museo de la máscara"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -103.4896389269215,
+          0.0001519743626550662
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": null,
+        "Nombre": "Museo Naval"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -103.48963892788525,
+          0.00015197400518992358
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": null,
+        "Nombre": "Jardín del Puerto"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -103.48963894530914,
+          0.0001519635110369442
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": null,
+        "Nombre": "Edificio Oviedo"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -103.48963895365334,
+          0.00015196871981004256
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": null,
+        "Nombre": "Zócalo"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -103.48963896315178,
+          0.0001519635865749228
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": null,
+        "Nombre": "Catedral de Nuestra Señora de la Soledad"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -103.48963896762403,
+          0.00015196868664863397
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": null,
+        "Nombre": "Murales de Sofía Bassi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -103.48963896572431,
+          0.00015197542034134224
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": null,
+        "Nombre": "Hotel el Mirador"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -103.48963902371997,
+          0.0001519456429946571
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": null,
+        "Nombre": "Clavadistas de la Quebrada"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -103.4896390229652,
+          0.0001519403239480413
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": null,
+        "Nombre": "Galeón de Manila"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -103.48963901967738,
+          0.00015194295462327666
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": null,
+        "Nombre": "Hotel la Misión"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -103.48963897571132,
+          0.00015195704414380578
+        ]
+      }
+    }
+  ]
+}
