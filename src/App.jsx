@@ -1,20 +1,17 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { AppProvider, useAppContext } from './context/AppContext';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext';
 import { useGeoJSON } from './hooks/useGeoJSON';
 import { useHashState } from './hooks/useHashState';
 import { useLayerData } from './hooks/useLayerData';
 import ErrorBoundary from './components/ErrorBoundary';
-import Header from './components/Header';
 import DetailCard from './components/DetailCard';
-import Map, { flyToSite, resetMapView, toggle3D } from './components/Map';
+import Map, { flyToSite, toggle3D } from './components/Map';
 import MapControls from './components/MapControls';
 import BasemapControls from './components/BasemapControls';
 import LayerLegend from './components/LayerLegend';
 import LoginModal from './components/Auth/LoginModal';
-import UserMenu from './components/Auth/UserMenu';
 import CheckinModal from './components/Checkin/CheckinModal';
-import ProfileModal from './components/Profile/ProfileModal';
 
 /**
  * Main App content component
@@ -23,7 +20,6 @@ import ProfileModal from './components/Profile/ProfileModal';
 function AppContent() {
   const {
     allFeatures,
-    filteredFeatures,
     selectedFeature,
     isCardVisible,
     currentBasemap,
@@ -40,12 +36,10 @@ function AppContent() {
   const { data: geoJsonData, loading, error } = useGeoJSON();
   const { layers: layerDataList } = useLayerData();
   const { siteId: hashSiteId, writeHashSiteId, clearHash } = useHashState();
-  const { isAuthenticated } = useAuth();
   const mapRef = useRef(null);
   const [is3DMode, setIs3DMode] = useState(true);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showCheckinModal, setShowCheckinModal] = useState(false);
-  const [showProfileModal, setShowProfileModal] = useState(false);
   const [showTip, setShowTip] = useState(false);
 
   // Load GeoJSON data
@@ -111,13 +105,6 @@ function AppContent() {
     }
   }, []);
 
-  // Handle reset view
-  const handleResetView = useCallback(() => {
-    if (mapRef.current) {
-      resetMapView(mapRef.current, allFeatures, filteredFeatures.map((f) => f.id));
-    }
-  }, [allFeatures, filteredFeatures]);
-
   // Handle basemap switch
   const handleSwitchBasemap = useCallback(
     (basemap) => {
@@ -125,13 +112,6 @@ function AppContent() {
     },
     [setCurrentBasemap]
   );
-
-  // Status text
-  const statusText = loading
-    ? 'Cargando sitios prioritarios...'
-    : error
-    ? 'Error al cargar'
-    : `14Sitios_: ${filteredFeatures.length}/${allFeatures.length}`;
 
   // Loading state
   if (loading) {
@@ -153,23 +133,6 @@ function AppContent() {
 
   return (
     <div className="h-screen flex flex-col bg-[#111827]">
-      {/* Header */}
-      <Header 
-        statusText={statusText}
-        authSlot={
-          isAuthenticated ? (
-            <UserMenu onOpenProfile={() => setShowProfileModal(true)} />
-          ) : (
-            <button
-              onClick={() => setShowLoginModal(true)}
-              className="rounded-full bg-white px-4 py-2 text-sm font-bold text-stone-950 shadow-lg transition hover:bg-amber-100"
-            >
-              Iniciar sesion
-            </button>
-          )
-        }
-      />
-
       {/* Login Modal */}
       <LoginModal
         isOpen={showLoginModal}
@@ -187,17 +150,11 @@ function AppContent() {
         }}
       />
 
-      {/* Profile Modal */}
-      <ProfileModal
-        isOpen={showProfileModal}
-        onClose={() => setShowProfileModal(false)}
-      />
-
       {/* Main layout */}
       <main className="flex-1 flex flex-col overflow-hidden relative">
         {/* Detail Card - Floating */}
         {isCardVisible && selectedFeature && (
-          <div className="absolute top-24 right-5 z-20 w-[390px] max-md:inset-x-3 max-md:top-24 max-md:w-auto">
+          <div className="absolute top-5 right-5 z-20 w-[390px] max-xl:w-[360px] max-md:inset-x-0 max-md:bottom-0 max-md:top-auto max-md:w-auto">
             <DetailCard 
               feature={selectedFeature}
               onClose={handleCloseCard}
@@ -213,15 +170,15 @@ function AppContent() {
           aria-label="Mapa 3D"
         >
           <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-40 bg-gradient-to-b from-stone-950/55 to-transparent" />
-          <div className="pointer-events-none absolute left-5 top-6 z-10 max-w-[420px] rounded-[28px] border border-white/20 bg-stone-950/45 p-5 text-white shadow-2xl backdrop-blur-xl max-md:left-3 max-md:right-3 max-md:top-3">
-            <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-amber-200">
+          <div className="pointer-events-none absolute left-4 top-4 z-10 max-w-[260px] rounded-2xl border border-white/15 bg-stone-950/55 px-3.5 py-3 text-white shadow-xl backdrop-blur-xl max-md:left-3 max-md:right-[4.5rem] max-md:top-3 max-md:max-w-none max-md:px-3 max-md:py-2.5">
+            <p className="text-[9px] font-bold uppercase tracking-[0.28em] text-amber-200">
               Circuito PVF
             </p>
-            <h1 className="mt-2 text-3xl font-black leading-none tracking-tight max-md:text-2xl">
-              14 sitios para redescubrir el Acapulco historico
+            <h1 className="mt-1 text-base font-black leading-tight tracking-tight max-md:text-sm">
+              14 sitios prioritarios
             </h1>
-            <p className="mt-3 max-w-sm text-sm leading-relaxed text-stone-100/85">
-              Las fichas solo se activan en los puntos prioritarios. Las demas capas sirven como contexto de ruta, servicios y playas.
+            <p className="mt-1 text-[11px] leading-snug text-stone-100/80 max-md:hidden">
+              Cards solo en 14Sitios_. Capas auxiliares como contexto.
             </p>
           </div>
 
@@ -234,7 +191,6 @@ function AppContent() {
           <MapControls
             is3d={is3DMode}
             onToggle3D={handleToggle3D}
-            onResetView={handleResetView}
           />
 
           {/* Basemap controls */}

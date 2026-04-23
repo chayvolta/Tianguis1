@@ -76,12 +76,6 @@ const Map = ({ onSiteSelect, ref }) => {
       antialias: true,
     });
 
-    // Add navigation controls
-    map.addControl(
-      new maplibregl.NavigationControl({ visualizePitch: true }),
-      'bottom-right'
-    );
-
     map.on('load', () => {
       // Keep a custom icon available for future symbol layers.
       const svgString = `<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path fill='#e11d48' stroke='white' stroke-width='2' d='M12 2 L22 22 L2 22 Z'/></svg>`;
@@ -148,12 +142,30 @@ const Map = ({ onSiteSelect, ref }) => {
 
         console.log('Added sites-points layer');
 
+        map.addLayer({
+          id: 'sites-numbers',
+          type: 'symbol',
+          source: 'sites',
+          layout: {
+            'text-field': ['to-string', ['get', '__siteNumber']],
+            'text-font': ['Open Sans Bold'],
+            'text-size': 11,
+            'text-allow-overlap': true,
+            'text-ignore-placement': true,
+          },
+          paint: {
+            'text-color': '#ffffff',
+            'text-halo-color': 'rgba(0,0,0,0.18)',
+            'text-halo-width': 0.8,
+          },
+        });
+
         // Add labels layer
         map.addLayer({
           id: 'sites-labels',
           type: 'symbol',
           source: 'sites',
-          minzoom: 13,
+          minzoom: 15.2,
           layout: {
             'text-field': ['get', '__label'],
             'text-font': ['Open Sans Regular'],
@@ -246,7 +258,7 @@ const Map = ({ onSiteSelect, ref }) => {
           const bounds = getBounds(coords);
           if (bounds) {
             map.fitBounds(bounds, {
-              padding: 70,
+              padding: getFitPadding(),
               duration: PREFERS_REDUCED_MOTION ? 0 : 650,
               pitch: MAP_CONFIG.pitch,
             });
@@ -353,17 +365,24 @@ const Map = ({ onSiteSelect, ref }) => {
         if (map.getLayer('sites-points')) {
           map.setLayoutProperty('sites-points', 'visibility', visibility);
         }
+        if (map.getLayer('sites-numbers')) {
+          map.setLayoutProperty('sites-numbers', 'visibility', visibility);
+        }
         if (map.getLayer('sites-labels')) {
           map.setLayoutProperty('sites-labels', 'visibility', visibility);
         }
       } else if (layer.id.startsWith('pvf-')) {
         // Handle dynamic layers
         const pointLayerId = `${layer.id}-points`;
+        const labelLayerId = `${layer.id}-labels`;
         const lineLayerId = `${layer.id}-line`;
         const fillLayerId = `${layer.id}-fill`;
 
         if (map.getLayer(pointLayerId)) {
           map.setLayoutProperty(pointLayerId, 'visibility', visibility);
+        }
+        if (map.getLayer(labelLayerId)) {
+          map.setLayoutProperty(labelLayerId, 'visibility', visibility);
         }
         if (map.getLayer(lineLayerId)) {
           map.setLayoutProperty(lineLayerId, 'visibility', visibility);
@@ -398,8 +417,10 @@ const Map = ({ onSiteSelect, ref }) => {
 
       if (layer.type === 'Points') {
         const pointLayerId = `${sourceId}-points`;
+        const labelLayerId = `${sourceId}-labels`;
         if (!map.getLayer(pointLayerId)) {
           try {
+            const beforeSites = map.getLayer('sites-points') ? 'sites-points' : undefined;
             map.addLayer({
               id: pointLayerId,
               type: 'circle',
@@ -414,11 +435,47 @@ const Map = ({ onSiteSelect, ref }) => {
                 'circle-stroke-width': 1.5,
                 'circle-opacity': 0.82,
               },
-            });
+            }, beforeSites);
             console.log(`Added point layer: ${pointLayerId}`);
           } catch (err) {
             console.error(`Error adding point layer ${pointLayerId}:`, err);
           }
+
+          if (sourceId === 'pvf-playas' && !map.getLayer(labelLayerId)) {
+            try {
+              const beforeSites = map.getLayer('sites-points') ? 'sites-points' : undefined;
+              map.addLayer({
+                id: labelLayerId,
+                type: 'symbol',
+                source: sourceId,
+                minzoom: 12.5,
+                layout: {
+                  visibility: layer.visible ? 'visible' : 'none',
+                  'text-field': [
+                    'coalesce',
+                    ['get', 'NOMBRE'],
+                    ['get', 'Nombre'],
+                    ['get', 'name'],
+                    'Playa',
+                  ],
+                  'text-font': ['Open Sans Bold'],
+                  'text-size': 12,
+                  'text-offset': [0, 1.15],
+                  'text-anchor': 'top',
+                  'text-optional': true,
+                },
+                paint: {
+                  'text-color': '#e0f2fe',
+                  'text-halo-color': 'rgba(8, 47, 73, 0.88)',
+                  'text-halo-width': 1.5,
+                },
+              }, beforeSites);
+              console.log(`Added beach label layer: ${labelLayerId}`);
+            } catch (err) {
+              console.error(`Error adding beach label layer ${labelLayerId}:`, err);
+            }
+          }
+
           map.on('mouseenter', pointLayerId, () => {
             map.getCanvas().style.cursor = 'pointer';
           });
@@ -430,6 +487,7 @@ const Map = ({ onSiteSelect, ref }) => {
         const lineLayerId = `${sourceId}-line`;
         if (!map.getLayer(lineLayerId)) {
           try {
+            const beforeSites = map.getLayer('sites-points') ? 'sites-points' : undefined;
             map.addLayer({
               id: lineLayerId,
               type: 'line',
@@ -445,7 +503,7 @@ const Map = ({ onSiteSelect, ref }) => {
                 'line-opacity': 0.9,
                 'line-dasharray': [0.5, 1.4],
               },
-            });
+            }, beforeSites);
             console.log(`Added line layer: ${lineLayerId}`);
           } catch (err) {
             console.error(`Error adding line layer ${lineLayerId}:`, err);
@@ -455,6 +513,7 @@ const Map = ({ onSiteSelect, ref }) => {
         const fillLayerId = `${sourceId}-fill`;
         if (!map.getLayer(fillLayerId)) {
           try {
+            const beforeSites = map.getLayer('sites-points') ? 'sites-points' : undefined;
             map.addLayer({
               id: fillLayerId,
               type: 'fill',
@@ -466,7 +525,7 @@ const Map = ({ onSiteSelect, ref }) => {
                 'fill-color': layer.color,
                 'fill-opacity': 0.24,
               },
-            });
+            }, beforeSites);
             console.log(`Added fill layer: ${fillLayerId}`);
           } catch (err) {
             console.error(`Error adding fill layer ${fillLayerId}:`, err);
@@ -476,6 +535,7 @@ const Map = ({ onSiteSelect, ref }) => {
         const lineLayerId = `${sourceId}-line`;
         if (!map.getLayer(lineLayerId)) {
           try {
+            const beforeSites = map.getLayer('sites-points') ? 'sites-points' : undefined;
             map.addLayer({
               id: lineLayerId,
               type: 'line',
@@ -487,7 +547,7 @@ const Map = ({ onSiteSelect, ref }) => {
                 'line-color': layer.color,
                 'line-width': 2,
               },
-            });
+            }, beforeSites);
           } catch (err) {
             console.error(`Error adding polygon outline ${lineLayerId}:`, err);
           }
@@ -505,6 +565,7 @@ const Map = ({ onSiteSelect, ref }) => {
 
     const filterExpr = ['in', ['id'], ['literal', filteredIds]];
     if (map.getLayer('sites-points')) map.setFilter('sites-points', filterExpr);
+    if (map.getLayer('sites-numbers')) map.setFilter('sites-numbers', filterExpr);
     if (map.getLayer('sites-labels')) map.setFilter('sites-labels', filterExpr);
   }, [filteredIds]);
 
@@ -556,10 +617,22 @@ function fitToAllSites(map, allFeatures, filteredIds) {
   if (!bounds) return;
 
   map.fitBounds(bounds, {
-    padding: 70,
+    padding: getFitPadding(),
     duration: PREFERS_REDUCED_MOTION ? 0 : 650,
     pitch: MAP_CONFIG.pitch,
   });
+}
+
+function getFitPadding() {
+  if (typeof window !== 'undefined' && window.innerWidth < 768) {
+    return { top: 110, right: 56, bottom: 170, left: 28 };
+  }
+
+  if (typeof window !== 'undefined' && window.innerWidth < 1280) {
+    return { top: 120, right: 90, bottom: 110, left: 90 };
+  }
+
+  return { top: 120, right: 110, bottom: 90, left: 360 };
 }
 
 export default Map;
@@ -578,6 +651,7 @@ export const flyToSite = (map, feature) => {
     zoom: Math.max(map.getZoom(), 16),
     pitch: Math.max(map.getPitch(), MAP_CONFIG.pitch),
     bearing: map.getBearing(),
+    offset: getFlyOffset(),
   };
 
   if (PREFERS_REDUCED_MOTION) {
@@ -595,10 +669,17 @@ export const flyToSite = (map, feature) => {
   // Popup is now managed by Map component state
 };
 
-// Export reset view function
-export const resetMapView = (map, allFeatures, filteredIds) => {
-  fitToAllSites(map, allFeatures, filteredIds);
-};
+function getFlyOffset() {
+  if (typeof window !== 'undefined' && window.innerWidth < 768) {
+    return [0, -120];
+  }
+
+  if (typeof window !== 'undefined' && window.innerWidth < 1280) {
+    return [0, -40];
+  }
+
+  return [-120, 0];
+}
 
 // Export toggle 3D function
 export const toggle3D = (map) => {

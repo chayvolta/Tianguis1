@@ -27,7 +27,7 @@ const DetailCard = memo(({ feature, onClose, onOpenCheckin, onOpenLogin }) => {
   return (
     <>
       <article
-        className="max-h-[calc(100vh-8rem)] overflow-hidden rounded-[32px] border border-white/30 bg-[#fffaf0] shadow-[0_24px_80px_rgba(15,23,42,0.35)]"
+        className="max-h-[calc(100vh-10rem)] overflow-hidden rounded-[32px] border border-white/30 bg-[#fffaf0] shadow-[0_24px_80px_rgba(15,23,42,0.35)] max-xl:max-h-[calc(100vh-11rem)] max-md:max-h-[72vh] max-md:rounded-b-none max-md:rounded-t-[30px]"
         onKeyDown={(e) => e.key === 'Escape' && onClose()}
         role="region"
         aria-label="Detalles del sitio prioritario"
@@ -41,6 +41,7 @@ const DetailCard = memo(({ feature, onClose, onOpenCheckin, onOpenLogin }) => {
               setLightboxOpen(true);
             }}
           />
+          <div className="absolute left-1/2 top-2 hidden h-1.5 w-12 -translate-x-1/2 rounded-full bg-white/70 max-md:block" />
           <button
             onClick={onClose}
             className="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full border border-white/50 bg-stone-950/70 text-xl leading-none text-white shadow-lg backdrop-blur transition hover:bg-rose-600"
@@ -51,7 +52,7 @@ const DetailCard = memo(({ feature, onClose, onOpenCheckin, onOpenLogin }) => {
           </button>
         </div>
 
-        <div className="max-h-[calc(100vh-22rem)] overflow-y-auto px-5 pb-5">
+        <div className="max-h-[calc(100vh-24rem)] overflow-y-auto px-5 pb-5 max-xl:max-h-[calc(100vh-24rem)] max-md:max-h-[calc(72vh-13rem)] max-md:px-4">
           <div className="-mt-2 mb-3 flex items-center justify-between gap-3">
             <span className="rounded-full bg-stone-950 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.22em] text-amber-100">
               Sitio {siteNumber}
@@ -61,12 +62,12 @@ const DetailCard = memo(({ feature, onClose, onOpenCheckin, onOpenLogin }) => {
             </span>
           </div>
 
-          <h2 className="text-2xl font-black leading-tight tracking-tight text-stone-950">
+          <h2 className="text-2xl font-black leading-tight tracking-tight text-stone-950 max-md:text-xl">
             {siteName}
           </h2>
 
           <div
-            className="mt-3 space-y-2 text-sm leading-relaxed text-stone-700"
+            className="mt-3 space-y-2 text-sm leading-relaxed text-stone-700 max-md:line-clamp-4"
             dangerouslySetInnerHTML={{ __html: details.description }}
           />
 
@@ -76,7 +77,7 @@ const DetailCard = memo(({ feature, onClose, onOpenCheckin, onOpenLogin }) => {
             </div>
           )}
 
-          <div className="mt-4 grid grid-cols-1 gap-3">
+          <div className="sticky bottom-0 -mx-5 mt-4 grid grid-cols-2 gap-3 bg-gradient-to-t from-[#fffaf0] via-[#fffaf0] to-transparent px-5 pb-1 pt-5 max-md:-mx-4 max-md:px-4">
             <a
               href={googleMapsUrl}
               target="_blank"

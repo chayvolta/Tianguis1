@@ -2,10 +2,10 @@ import { memo } from 'react';
 import PropTypes from 'prop-types';
 
 /**
- * MapControls component - 3D toggle and reset view buttons
+ * MapControls component - 3D toggle button
  * Memoized for performance
  */
-const MapControls = memo(({ is3d, onToggle3D, onResetView }) => {
+const MapControls = memo(({ is3d, onToggle3D }) => {
   return (
     <div className="absolute right-5 bottom-28 flex flex-col gap-2 z-10 max-md:right-3">
       <button
@@ -28,18 +28,6 @@ const MapControls = memo(({ is3d, onToggle3D, onResetView }) => {
           <path d="M3 9l9 6"/>
         </svg>
       </button>
-
-      <button
-        onClick={onResetView}
-        className="w-11 h-11 flex items-center justify-center rounded-2xl border border-white/25 bg-stone-950/65 text-white cursor-pointer hover:bg-white/20 transition shadow-xl backdrop-blur-xl"
-        title="Re-encuadrar a todos los sitios"
-        aria-label="Centrar vista del mapa"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10"/>
-          <circle cx="12" cy="12" r="3"/>
-        </svg>
-      </button>
     </div>
   );
 });
@@ -49,7 +37,6 @@ MapControls.displayName = 'MapControls';
 MapControls.propTypes = {
   is3d: PropTypes.bool.isRequired,
   onToggle3D: PropTypes.func.isRequired,
-  onResetView: PropTypes.func.isRequired,
 };
 
 export default MapControls;
