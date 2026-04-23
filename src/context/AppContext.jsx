@@ -15,9 +15,7 @@ export const AppProvider = ({ children }) => {
   const [isCardVisible, setIsCardVisible] = useState(false);
   const [currentBasemap, setCurrentBasemap] = useState('satellite');
   const [staticLayers, setStaticLayers] = useState([
-    { id: 'sites', name: 'Sitios', visible: true, color: '#e6281a' },
-    { id: 'cip-limite', name: 'Límite CIP', visible: false, color: '#ff0000' },
-    { id: 'senderos-paz', name: 'Senderos de Paz', visible: false, color: '#39ff14' },
+    { id: 'sites', name: '14 sitios prioritarios', visible: true, color: '#e11d48' },
   ]);
   const [dynamicLayers, setDynamicLayers] = useState([]);
   const [externalFeature, setExternalFeature] = useState(null);
@@ -28,7 +26,7 @@ export const AppProvider = ({ children }) => {
   // Toggle layer visibility
   const toggleLayer = useCallback((layerId) => {
     // Check if it's a dynamic layer
-    const isDynamic = layerId.startsWith('points-') || layerId.startsWith('polygons-');
+    const isDynamic = layerId.startsWith('pvf-');
     
     if (isDynamic) {
       setDynamicLayers((prev) =>
@@ -112,10 +110,11 @@ export const AppProvider = ({ children }) => {
       selectSite,
       clearSelection,
       openFeatureCard,
-      setExternalFeature,
+      layers,
+      toggleLayer,
       staticLayers,
       dynamicLayers,
-      toggleLayer,
+      externalFeature,
     ]
   );
 

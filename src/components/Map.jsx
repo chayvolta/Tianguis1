@@ -5,7 +5,6 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { useAppContext } from '../context/AppContext';
 import { MAP_CONFIG, PREFERS_REDUCED_MOTION } from '../constants';
 import { getFirstCoord2D, getBounds, escapeHtml } from '../utils';
-import { useLayerData } from '../hooks/useLayerData';
 
 /**
  * Map component - MapLibre GL map with 3D terrain
@@ -24,9 +23,7 @@ const Map = ({ onSiteSelect, ref }) => {
     currentBasemap,
     layers,
     dynamicLayers,
-    openFeatureCard,
   } = useAppContext();
-  const { layers: layerDataList } = useLayerData();
 
   // Debug logs
   useEffect(() => {
@@ -82,12 +79,12 @@ const Map = ({ onSiteSelect, ref }) => {
     // Add navigation controls
     map.addControl(
       new maplibregl.NavigationControl({ visualizePitch: true }),
-      'top-right'
+      'bottom-right'
     );
 
     map.on('load', () => {
-      // Create monument icon - Simplified larger triangle
-      const svgString = `<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path fill='#e6281a' stroke='white' stroke-width='2' d='M12 2 L22 22 L2 22 Z'/></svg>`;
+      // Keep a custom icon available for future symbol layers.
+      const svgString = `<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path fill='#e11d48' stroke='white' stroke-width='2' d='M12 2 L22 22 L2 22 Z'/></svg>`;
       const img = new Image(24, 24);
 
       img.onload = () => {
@@ -115,22 +112,37 @@ const Map = ({ onSiteSelect, ref }) => {
 
         console.log('Added sites source with features:', allFeatures.length);
 
-        // TEMPORARY: Use circles instead of symbols for debugging
         map.addLayer({
           id: 'sites-points',
           type: 'circle',
           source: 'sites',
           paint: {
-            'circle-radius': 8,
-            'circle-color': '#e6281a',
-            'circle-stroke-color': '#ffffff',
-            'circle-stroke-width': 2,
+            'circle-radius': [
+              'case',
+              ['boolean', ['feature-state', 'selected'], false],
+              13,
+              9,
+            ],
+            'circle-color': [
+              'case',
+              ['boolean', ['feature-state', 'selected'], false],
+              '#f97316',
+              '#e11d48',
+            ],
+            'circle-stroke-color': '#fff7ed',
+            'circle-stroke-width': [
+              'case',
+              ['boolean', ['feature-state', 'selected'], false],
+              4,
+              2,
+            ],
             'circle-opacity': [
               'case',
               ['boolean', ['feature-state', 'selected'], false],
               1.0,
-              0.85,
+              0.92,
             ],
+            'circle-blur': 0.05,
           },
         });
 
@@ -145,71 +157,17 @@ const Map = ({ onSiteSelect, ref }) => {
           layout: {
             'text-field': ['get', '__label'],
             'text-font': ['Open Sans Regular'],
-            'text-size': 12,
-            'text-offset': [0, 1.2],
+            'text-size': 13,
+            'text-offset': [0, 1.35],
             'text-anchor': 'top',
             'text-optional': true,
           },
           paint: {
-            'text-color': '#0F172A',
-            'text-halo-color': 'rgba(255,255,255,0.9)',
-            'text-halo-width': 1.2,
+            'text-color': '#111827',
+            'text-halo-color': 'rgba(255,247,237,0.95)',
+            'text-halo-width': 1.5,
           },
         });
-
-        // Add CIP Limite layer (hidden by default)
-        map.addSource('cip-limite', {
-          type: 'geojson',
-          data: '/data/cip_limite.geojson',
-        });
-
-        map.addLayer({
-          id: 'cip-limite-fill',
-          type: 'fill',
-          source: 'cip-limite',
-          layout: {
-            visibility: 'none',
-          },
-          paint: {
-            'fill-color': '#ff0000',
-            'fill-opacity': 0.1,
-          },
-        });
-
-        map.addLayer({
-          id: 'cip-limite-line',
-          type: 'line',
-          source: 'cip-limite',
-          layout: {
-            visibility: 'none',
-          },
-          paint: {
-            'line-color': '#ff0000',
-            'line-width': 8,
-          },
-        });
-
-        // Add Senderos de Paz layer (hidden by default)
-        map.addSource('senderos-paz', {
-          type: 'geojson',
-          data: '/data/senderos_paz.geojson',
-        });
-
-        map.addLayer({
-          id: 'senderos-paz-line',
-          type: 'line',
-          source: 'senderos-paz',
-          layout: {
-            visibility: 'none',
-          },
-          paint: {
-            'line-color': '#39ff14',
-            'line-width': 3,
-            'line-dasharray': [2, 1],
-          },
-        });
-
-        console.log('Added CIP and Senderos layers');
 
         // Fit to all sites
         fitToAllSites(map, allFeatures, filteredIds);
@@ -398,47 +356,26 @@ const Map = ({ onSiteSelect, ref }) => {
         if (map.getLayer('sites-labels')) {
           map.setLayoutProperty('sites-labels', 'visibility', visibility);
         }
-      } else if (layer.id === 'cip-limite') {
-        // Update visibility
-        if (map.getLayer('cip-limite-fill')) {
-          map.setLayoutProperty('cip-limite-fill', 'visibility', visibility);
-          // Force paint properties updates
-          map.setPaintProperty('cip-limite-fill', 'fill-color', '#ff0000');
-          map.setPaintProperty('cip-limite-fill', 'fill-opacity', 0.1);
-        }
-        if (map.getLayer('cip-limite-line')) {
-          map.setLayoutProperty('cip-limite-line', 'visibility', visibility);
-          // Force paint properties updates
-          map.setPaintProperty('cip-limite-line', 'line-color', '#ff0000');
-          map.setPaintProperty('cip-limite-line', 'line-width', 8);
-        }
-      } else if (layer.id === 'senderos-paz') {
-        if (map.getLayer('senderos-paz-line')) {
-          map.setLayoutProperty('senderos-paz-line', 'visibility', visibility);
-          // Force paint properties updates
-          map.setPaintProperty('senderos-paz-line', 'line-color', '#39ff14');
-          map.setPaintProperty('senderos-paz-line', 'line-width', 3);
-        }
-      } else if (layer.id.startsWith('points-') || layer.id.startsWith('polygons-')) {
+      } else if (layer.id.startsWith('pvf-')) {
         // Handle dynamic layers
         const pointLayerId = `${layer.id}-points`;
-        const fillLayerId = `${layer.id}-fill`;
         const lineLayerId = `${layer.id}-line`;
+        const fillLayerId = `${layer.id}-fill`;
 
         if (map.getLayer(pointLayerId)) {
           map.setLayoutProperty(pointLayerId, 'visibility', visibility);
         }
-        if (map.getLayer(fillLayerId)) {
-          map.setLayoutProperty(fillLayerId, 'visibility', visibility);
-        }
         if (map.getLayer(lineLayerId)) {
           map.setLayoutProperty(lineLayerId, 'visibility', visibility);
+        }
+        if (map.getLayer(fillLayerId)) {
+          map.setLayoutProperty(fillLayerId, 'visibility', visibility);
         }
       }
     });
   }, [layers]);
 
-  // Consolidated effect: Load dynamic layers + setup click handlers
+  // Supporting PVF layers are visual context only; they never open DetailCard.
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !map.isStyleLoaded()) return;
@@ -459,10 +396,7 @@ const Map = ({ onSiteSelect, ref }) => {
         }
       }
 
-      const isPoint = layer.type === 'Points';
-      
-      if (isPoint) {
-        // Add point layer
+      if (layer.type === 'Points') {
         const pointLayerId = `${sourceId}-points`;
         if (!map.getLayer(pointLayerId)) {
           try {
@@ -474,61 +408,17 @@ const Map = ({ onSiteSelect, ref }) => {
                 visibility: layer.visible ? 'visible' : 'none',
               },
               paint: {
-                'circle-radius': 8,
+                'circle-radius': 6,
                 'circle-color': layer.color,
-                'circle-stroke-color': '#ffffff',
-                'circle-stroke-width': 2,
-                'circle-opacity': 0.9,
-                'circle-blur': 0.5,
+                'circle-stroke-color': '#fff7ed',
+                'circle-stroke-width': 1.5,
+                'circle-opacity': 0.82,
               },
             });
             console.log(`Added point layer: ${pointLayerId}`);
           } catch (err) {
             console.error(`Error adding point layer ${pointLayerId}:`, err);
           }
-        }
-
-        // 2. Set up click handler immediately after layer creation
-        if (map.getLayer(pointLayerId)) {
-          // Remove previous handlers to avoid duplicates
-          map.off('click', pointLayerId);
-          map.off('mouseenter', pointLayerId);
-          map.off('mouseleave', pointLayerId);
-          
-          map.on('click', pointLayerId, (e) => {
-            console.log('Point clicked:', sourceId, e.features);
-            const feature = e.features && e.features[0];
-            if (!feature) return;
-            
-            const coords = getFirstCoord2D(feature.geometry);
-            if (!coords) return;
-
-            // Normalize feature shape expected by DetailCard
-            const normalized = {
-              id: feature.id || `${sourceId}-${Math.random().toString(36).slice(2, 9)}`,
-              geometry: feature.geometry,
-              properties: {
-                ...feature.properties,
-                __label: feature.properties.Nombre || layer.name,
-                __folder: layer.name,
-              },
-            };
-
-            console.log('Opening DetailCard for:', normalized);
-            openFeatureCard(normalized);
-            
-            // Fly to location
-            map.flyTo({
-              center: coords,
-              zoom: Math.max(map.getZoom(), 16),
-              pitch: Math.max(map.getPitch(), MAP_CONFIG.pitch),
-              bearing: map.getBearing(),
-              speed: 1.15,
-              curve: 1.35,
-              duration: PREFERS_REDUCED_MOTION ? 0 : 800,
-            });
-          });
-
           map.on('mouseenter', pointLayerId, () => {
             map.getCanvas().style.cursor = 'pointer';
           });
@@ -536,8 +426,32 @@ const Map = ({ onSiteSelect, ref }) => {
             map.getCanvas().style.cursor = '';
           });
         }
+      } else if (layer.type === 'Lines') {
+        const lineLayerId = `${sourceId}-line`;
+        if (!map.getLayer(lineLayerId)) {
+          try {
+            map.addLayer({
+              id: lineLayerId,
+              type: 'line',
+              source: sourceId,
+              layout: {
+                'line-cap': 'round',
+                'line-join': 'round',
+                visibility: layer.visible ? 'visible' : 'none',
+              },
+              paint: {
+                'line-color': layer.color,
+                'line-width': 5,
+                'line-opacity': 0.9,
+                'line-dasharray': [0.5, 1.4],
+              },
+            });
+            console.log(`Added line layer: ${lineLayerId}`);
+          } catch (err) {
+            console.error(`Error adding line layer ${lineLayerId}:`, err);
+          }
+        }
       } else {
-        // Add polygon fill layer
         const fillLayerId = `${sourceId}-fill`;
         if (!map.getLayer(fillLayerId)) {
           try {
@@ -550,7 +464,7 @@ const Map = ({ onSiteSelect, ref }) => {
               },
               paint: {
                 'fill-color': layer.color,
-                'fill-opacity': 0.35,
+                'fill-opacity': 0.24,
               },
             });
             console.log(`Added fill layer: ${fillLayerId}`);
@@ -559,7 +473,6 @@ const Map = ({ onSiteSelect, ref }) => {
           }
         }
 
-        // Add polygon line layer
         const lineLayerId = `${sourceId}-line`;
         if (!map.getLayer(lineLayerId)) {
           try {
@@ -575,85 +488,15 @@ const Map = ({ onSiteSelect, ref }) => {
                 'line-width': 2,
               },
             });
-            console.log(`Added line layer: ${lineLayerId}`);
           } catch (err) {
-            console.error(`Error adding line layer ${lineLayerId}:`, err);
+            console.error(`Error adding polygon outline ${lineLayerId}:`, err);
           }
-        }
-
-        // 2. Set up click handler for polygons immediately after layer creation
-        if (map.getLayer(fillLayerId)) {
-          // Remove previous handlers
-          map.off('click', fillLayerId);
-          map.off('mouseenter', fillLayerId);
-          map.off('mouseleave', fillLayerId);
-          
-          map.on('click', fillLayerId, (e) => {
-            console.log('Polygon clicked:', sourceId, e.features);
-            const feature = e.features && e.features[0];
-            if (!feature) return;
-
-            // Compute center of polygon
-            let coords;
-            if (feature.geometry.type === 'MultiPolygon') {
-              const polygon = feature.geometry.coordinates[0][0];
-              let sumLng = 0, sumLat = 0;
-              polygon.forEach(point => {
-                sumLng += point[0];
-                sumLat += point[1];
-              });
-              coords = [sumLng / polygon.length, sumLat / polygon.length];
-            } else if (feature.geometry.type === 'Polygon') {
-              const polygon = feature.geometry.coordinates[0];
-              let sumLng = 0, sumLat = 0;
-              polygon.forEach(point => {
-                sumLng += point[0];
-                sumLat += point[1];
-              });
-              coords = [sumLng / polygon.length, sumLat / polygon.length];
-            } else {
-              coords = getFirstCoord2D(feature.geometry);
-            }
-
-            if (!coords) return;
-
-            const normalized = {
-              id: feature.id || `${sourceId}-${Math.random().toString(36).slice(2, 9)}`,
-              geometry: feature.geometry,
-              properties: {
-                ...feature.properties,
-                __label: feature.properties.Nom_o_nota || layer.name,
-                __folder: layer.name.replace(/_/g, ' '),
-              },
-            };
-
-            console.log('Opening DetailCard for polygon:', normalized);
-            openFeatureCard(normalized);
-            
-            // Fly to polygon center
-            map.flyTo({
-              center: coords,
-              zoom: Math.max(map.getZoom(), 16),
-              pitch: Math.max(map.getPitch(), MAP_CONFIG.pitch),
-              bearing: map.getBearing(),
-              speed: 1.15,
-              curve: 1.35,
-              duration: PREFERS_REDUCED_MOTION ? 0 : 800,
-            });
-          });
-
-          map.on('mouseenter', fillLayerId, () => {
-            map.getCanvas().style.cursor = 'pointer';
-          });
-          map.on('mouseleave', fillLayerId, () => {
-            map.getCanvas().style.cursor = '';
-          });
         }
       }
 
       loadedSourcesRef.current.add(sourceId);
     });
-  }, [dynamicLayers, openFeatureCard]);
+  }, [dynamicLayers]);
 
   // Update filter
   useEffect(() => {

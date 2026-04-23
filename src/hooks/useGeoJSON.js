@@ -42,15 +42,17 @@ export const useGeoJSON = () => {
           .map((f, idx) => {
             const props = f.properties || {};
             const label = pickLabel(props, idx);
-            const folder = String(props.folders || 'Sin carpeta').trim() || 'Sin carpeta';
+            const sourceId = Number(props.id);
+            const folder = '14 sitios prioritarios';
 
             return {
               ...f,
-              id: idx,
+              id: Number.isFinite(sourceId) ? sourceId : idx + 1,
               properties: {
                 ...props,
                 __label: label,
                 __folder: folder,
+                __siteNumber: Number.isFinite(sourceId) ? sourceId : idx + 1,
               },
             };
           });

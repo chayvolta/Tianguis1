@@ -1,0 +1,21 @@
+{
+"type": "FeatureCollection",
+"name": "14Sitios_",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "id": 1, "Nombre": "Estación de Marinabus" }, "geometry": { "type": "Point", "coordinates": [ -99.906955645278757, 16.848517206720874 ] } },
+{ "type": "Feature", "properties": { "id": 2, "Nombre": "Jardín del Puerto" }, "geometry": { "type": "Point", "coordinates": [ -99.906371635855052, 16.848602640169769 ] } },
+{ "type": "Feature", "properties": { "id": 3, "Nombre": "Fuerte de San Diego" }, "geometry": { "type": "Point", "coordinates": [ -99.902445978769435, 16.849888489876097 ] } },
+{ "type": "Feature", "properties": { "id": 4, "Nombre": "Museo de las 8 regiones" }, "geometry": { "type": "Point", "coordinates": [ -99.904161235487891, 16.849811775914986 ] } },
+{ "type": "Feature", "properties": { "id": 5, "Nombre": "Museo de la Máscara" }, "geometry": { "type": "Point", "coordinates": [ -99.904386961722949, 16.849785785959835 ] } },
+{ "type": "Feature", "properties": { "id": 6, "Nombre": "Museo Naval" }, "geometry": { "type": "Point", "coordinates": [ -99.904491441967281, 16.849727856672558 ] } },
+{ "type": "Feature", "properties": { "id": 7, "Nombre": "Edificio Oviedo" }, "geometry": { "type": "Point", "coordinates": [ -99.907424700115456, 16.849113715695903 ] } },
+{ "type": "Feature", "properties": { "id": 8, "Nombre": "Zócalo" }, "geometry": { "type": "Point", "coordinates": [ -99.908424463948535, 16.848609975122422 ] } },
+{ "type": "Feature", "properties": { "id": 9, "Nombre": "Murales de Sofía Bassi" }, "geometry": { "type": "Point", "coordinates": [ -99.908718123814992, 16.849903055241068 ] } },
+{ "type": "Feature", "properties": { "id": 10, "Nombre": "Catedral de Nuestra Señora de la Soledad" }, "geometry": { "type": "Point", "coordinates": [ -99.908924538126257, 16.849121050056976 ] } },
+{ "type": "Feature", "properties": { "id": 11, "Nombre": "Hotel La Misión" }, "geometry": { "type": "Point", "coordinates": [ -99.909767606631533, 16.847764842954 ] } },
+{ "type": "Feature", "properties": { "id": 12, "Nombre": "Monumento al Galeón de Manila" }, "geometry": { "type": "Point", "coordinates": [ -99.914740865043498, 16.846288801219572 ] } },
+{ "type": "Feature", "properties": { "id": 13, "Nombre": "Hotel El Mirador" }, "geometry": { "type": "Point", "coordinates": [ -99.914924714223702, 16.846542089985849 ] } },
+{ "type": "Feature", "properties": { "id": 14, "Nombre": "Clavadistas de La Quebrada" }, "geometry": { "type": "Point", "coordinates": [ -99.9151073399089, 16.846011829796936 ] } }
+]
+}

@@ -7,21 +7,21 @@ import PropTypes from 'prop-types';
  */
 const MapControls = memo(({ is3d, onToggle3D, onResetView }) => {
   return (
-    <div className="absolute left-3 top-3 flex flex-col gap-2 z-10">
+    <div className="absolute right-5 bottom-28 flex flex-col gap-2 z-10 max-md:right-3">
       <button
         onClick={onToggle3D}
         className={`
-          w-10 h-10 flex items-center justify-center rounded-lg border bg-white cursor-pointer transition shadow-md
+          w-11 h-11 flex items-center justify-center rounded-2xl border cursor-pointer transition shadow-xl backdrop-blur-xl
           ${is3d 
-            ? 'border-gray-400 bg-gray-50' 
-            : 'border-gray-300 hover:border-gray-400'
+            ? 'border-amber-200 bg-amber-300 text-stone-950' 
+            : 'border-white/25 bg-stone-950/65 text-white hover:bg-white/20'
           }
         `}
         title="Alternar vista 3D (pitch)"
         aria-label="Alternar vista 3D"
         aria-pressed={is3d}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-black">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M12 3l9 12-9 6-9-6 9-12z"/>
           <path d="M12 15l9-6"/>
           <path d="M12 15v6"/>
@@ -31,11 +31,11 @@ const MapControls = memo(({ is3d, onToggle3D, onResetView }) => {
 
       <button
         onClick={onResetView}
-        className="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-300 bg-white cursor-pointer hover:border-gray-400 transition shadow-md"
+        className="w-11 h-11 flex items-center justify-center rounded-2xl border border-white/25 bg-stone-950/65 text-white cursor-pointer hover:bg-white/20 transition shadow-xl backdrop-blur-xl"
         title="Re-encuadrar a todos los sitios"
         aria-label="Centrar vista del mapa"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-black">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10"/>
           <circle cx="12" cy="12" r="3"/>
         </svg>

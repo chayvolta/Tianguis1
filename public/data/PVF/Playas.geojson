@@ -1,0 +1,13 @@
+{
+"type": "FeatureCollection",
+"name": "Playas",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "Superfici": null, "NOMBRE": "Playa Tlacopanocha", "TIPO": "Playa" }, "geometry": { "type": "Point", "coordinates": [ -99.907670823696833, 16.845176562513668 ] } },
+{ "type": "Feature", "properties": { "Superfici": null, "NOMBRE": "Playa Manzanillo", "TIPO": "Playa" }, "geometry": { "type": "Point", "coordinates": [ -99.911157256532547, 16.84234985525126 ] } },
+{ "type": "Feature", "properties": { "Superfici": null, "NOMBRE": "Playa La Angosta", "TIPO": "Playa" }, "geometry": { "type": "Point", "coordinates": [ -99.914689525524793, 16.841998682810519 ] } },
+{ "type": "Feature", "properties": { "Superfici": null, "NOMBRE": "Caletilla", "TIPO": "Playa" }, "geometry": { "type": "Point", "coordinates": [ -99.90549391916683, 16.830501792530079 ] } },
+{ "type": "Feature", "properties": { "Superfici": null, "NOMBRE": "Caleta", "TIPO": "Playa" }, "geometry": { "type": "Point", "coordinates": [ -99.903800192245626, 16.831465217189042 ] } },
+{ "type": "Feature", "properties": { "Superfici": null, "NOMBRE": "Playa Honda", "TIPO": "Playa" }, "geometry": { "type": "Point", "coordinates": [ -99.910378340005565, 16.840741644539456 ] } }
+]
+}

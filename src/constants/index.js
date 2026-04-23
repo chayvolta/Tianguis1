@@ -1,13 +1,13 @@
 // App constants
-export const GEOJSON_URL = '/data/sitios.geojson';
+export const GEOJSON_URL = '/data/PVF/14Sitios_.geojson';
 
 // Map configuration
 export const MAP_CONFIG = {
-  center: [-99.912, 16.853], // Acapulco
-  zoom: 11.6,
-  pitch: 58,
-  bearing: 18,
-  terrainExaggeration: 1.5,
+  center: [-99.909, 16.8478],
+  zoom: 14.2,
+  pitch: 55,
+  bearing: 24,
+  terrainExaggeration: 1.35,
 };
 
 // Basemap options

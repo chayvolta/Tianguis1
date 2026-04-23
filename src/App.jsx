@@ -35,8 +35,6 @@ function AppContent() {
     clearSelection,
     setCurrentBasemap,
     setDynamicLayers,
-    externalFeature,
-    setExternalFeature,
   } = useAppContext();
 
   const { data: geoJsonData, loading, error } = useGeoJSON();
@@ -102,7 +100,6 @@ function AppContent() {
   // Handle close card
   const handleCloseCard = useCallback(() => {
     clearSelection();
-    setExternalFeature?.(null);
     clearHash();
   }, [clearSelection, clearHash]);
 
@@ -131,16 +128,16 @@ function AppContent() {
 
   // Status text
   const statusText = loading
-    ? 'Cargando GeoJSON…'
+    ? 'Cargando sitios prioritarios...'
     : error
     ? 'Error al cargar'
-    : `Sitios: ${filteredFeatures.length}/${allFeatures.length}`;
+    : `14Sitios_: ${filteredFeatures.length}/${allFeatures.length}`;
 
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-gray-600">Cargando datos…</div>
+      <div className="min-h-screen flex items-center justify-center bg-stone-100">
+        <div className="text-stone-700">Cargando circuito patrimonial...</div>
       </div>
     );
   }
@@ -155,7 +152,7 @@ function AppContent() {
   }
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col bg-[#111827]">
       {/* Header */}
       <Header 
         statusText={statusText}
@@ -165,9 +162,9 @@ function AppContent() {
           ) : (
             <button
               onClick={() => setShowLoginModal(true)}
-              className="px-3 py-1.5 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-light transition"
+              className="rounded-full bg-white px-4 py-2 text-sm font-bold text-stone-950 shadow-lg transition hover:bg-amber-100"
             >
-              Iniciar Sesión
+              Iniciar sesion
             </button>
           )
         }
@@ -197,12 +194,12 @@ function AppContent() {
       />
 
       {/* Main layout */}
-      <main className="flex-1 flex flex-col overflow-hidden">
+      <main className="flex-1 flex flex-col overflow-hidden relative">
         {/* Detail Card - Floating */}
-        {isCardVisible && (
-          <div className="absolute top-20 right-3 z-20 w-[380px] max-md:w-[calc(100%-24px)]">
+        {isCardVisible && selectedFeature && (
+          <div className="absolute top-24 right-5 z-20 w-[390px] max-md:inset-x-3 max-md:top-24 max-md:w-auto">
             <DetailCard 
-              feature={selectedFeature || externalFeature}
+              feature={selectedFeature}
               onClose={handleCloseCard}
               onOpenCheckin={() => setShowCheckinModal(true)}
               onOpenLogin={() => setShowLoginModal(true)}
@@ -212,9 +209,22 @@ function AppContent() {
 
         {/* Map - Full Screen */}
         <section
-          className="flex-1 overflow-hidden relative bg-gray-200"
+          className="flex-1 overflow-hidden relative bg-stone-950"
           aria-label="Mapa 3D"
         >
+          <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-40 bg-gradient-to-b from-stone-950/55 to-transparent" />
+          <div className="pointer-events-none absolute left-5 top-6 z-10 max-w-[420px] rounded-[28px] border border-white/20 bg-stone-950/45 p-5 text-white shadow-2xl backdrop-blur-xl max-md:left-3 max-md:right-3 max-md:top-3">
+            <p className="text-[11px] font-bold uppercase tracking-[0.32em] text-amber-200">
+              Circuito PVF
+            </p>
+            <h1 className="mt-2 text-3xl font-black leading-none tracking-tight max-md:text-2xl">
+              14 sitios para redescubrir el Acapulco historico
+            </h1>
+            <p className="mt-3 max-w-sm text-sm leading-relaxed text-stone-100/85">
+              Las fichas solo se activan en los puntos prioritarios. Las demas capas sirven como contexto de ruta, servicios y playas.
+            </p>
+          </div>
+
           <Map
             onSiteSelect={handleSelectSite}
             ref={mapRef}
@@ -241,16 +251,16 @@ function AppContent() {
 
           {/* Map hint */}
           {/* Map hint */}
-          <div className="absolute left-3 bottom-3 z-10 flex flex-col items-start gap-2">
+          <div className="absolute left-5 bottom-5 z-10 flex flex-col items-start gap-2 max-md:left-3 max-md:bottom-3">
              {/* Info Button */}
             <button
               onClick={() => setShowTip(!showTip)}
               className={`
-                w-8 h-8 flex items-center justify-center rounded-lg border bg-white cursor-pointer transition shadow-sm
-                ${showTip ? 'bg-primary border-primary text-white' : 'border-gray-300 text-gray-600 hover:text-gray-900'}
+                w-10 h-10 flex items-center justify-center rounded-2xl border cursor-pointer transition shadow-lg backdrop-blur-xl
+                ${showTip ? 'bg-amber-400 border-amber-200 text-stone-950' : 'border-white/25 bg-stone-950/55 text-white hover:bg-white/20'}
               `}
               title={showTip ? "Ocultar ayuda" : "Mostrar ayuda de navegación"}
-              aria-label="Ayuda de navegación"
+              aria-label="Ayuda de navegacion"
               aria-expanded={showTip}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -263,7 +273,7 @@ function AppContent() {
             {/* Tip Content */}
             <div 
               className={`
-                text-xs text-[#0f172a] bg-white/95 border border-gray-200 px-3 py-2.5 rounded-lg backdrop-blur-sm shadow-lg max-w-[200px] transition-all duration-300 origin-bottom-left
+                text-xs text-stone-100 bg-stone-950/80 border border-white/20 px-3 py-2.5 rounded-2xl backdrop-blur-xl shadow-lg max-w-[220px] transition-all duration-300 origin-bottom-left
                 ${showTip ? 'opacity-100 scale-100' : 'opacity-0 scale-95 hidden'}
               `}
             >

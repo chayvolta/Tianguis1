@@ -1,0 +1,12 @@
+{
+"type": "FeatureCollection",
+"name": "Sanitarios",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "id": null }, "geometry": { "type": "Point", "coordinates": [ -99.91167807699901, 16.842192869081504 ] } },
+{ "type": "Feature", "properties": { "id": null }, "geometry": { "type": "Point", "coordinates": [ -99.908207817639777, 16.845491333422945 ] } },
+{ "type": "Feature", "properties": { "id": null }, "geometry": { "type": "Point", "coordinates": [ -99.906867816501077, 16.848549284739491 ] } },
+{ "type": "Feature", "properties": { "id": null }, "geometry": { "type": "Point", "coordinates": [ -99.914667310308431, 16.846006718476296 ] } },
+{ "type": "Feature", "properties": { "id": null }, "geometry": { "type": "Point", "coordinates": [ -99.901988837996029, 16.849665952355082 ] } }
+]
+}

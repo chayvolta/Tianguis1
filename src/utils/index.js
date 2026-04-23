@@ -113,8 +113,6 @@ export const getPlaceholderImage = (seed, size = '400/300', salt = 0) => {
  */
 export const getSiteDetails = (feature) => {
   const siteName = feature?.properties?.__label || 'Sitio';
-  const folder = feature?.properties?.__folder || 'Acapulco';
-
   // Generate 3 variations of images
   const images = [
     getPlaceholderImage(siteName, '800/600', 0),
@@ -122,11 +120,10 @@ export const getSiteDetails = (feature) => {
     getPlaceholderImage(siteName, '800/600', 200),
   ];
 
-  // Mock description in Spanish
   const description = `
-    <p><strong>${siteName}</strong> es un punto de interés destacado en la zona de ${folder}.</p>
-    <p>Este lugar ofrece una vista privilegiada y es parte del patrimonio cultural y turístico de Acapulco. Ideal para visitar en familia y conocer más sobre la historia local.</p>
-    <p>Cuenta con acceso facilitado y cercanía a otros puntos turísticos importantes. Se recomienda llevar ropa cómoda y cámara fotográfica para capturar los hermosos paisajes que ofrece este sitio.</p>
+    <p><strong>${siteName}</strong> forma parte de la capa prioritaria <strong>14Sitios_</strong>, el conjunto principal de puntos para este geoportal.</p>
+    <p>La ficha concentra informacion de visita y ubicacion para orientar el recorrido patrimonial por el centro historico y la zona tradicional de Acapulco.</p>
+    <p>Usa las capas de ruta, playas, estacionamientos y sanitarios como apoyo visual; las cards se mantienen reservadas para estos 14 puntos.</p>
   `;
 
   return {
