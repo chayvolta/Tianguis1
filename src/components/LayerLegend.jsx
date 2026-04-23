@@ -8,7 +8,7 @@ const LayerLegend = memo(({ visibleLayers, onToggle }) => {
   const activeContextLayers = layers.filter((layer) => visibleLayers.includes(layer.id)).length;
 
   return (
-    <div className="absolute bottom-20 left-5 z-10 w-[270px] text-white max-lg:left-3 max-md:w-[min(280px,calc(100%-88px))]">
+    <div className="absolute bottom-20 left-5 z-10 w-[270px] text-white max-lg:left-3 max-md:bottom-[calc(env(safe-area-inset-bottom)+1rem)] max-md:w-[min(280px,calc(100%-88px))]">
       <button
         type="button"
         onClick={() => setIsOpen((value) => !value)}
@@ -29,7 +29,7 @@ const LayerLegend = memo(({ visibleLayers, onToggle }) => {
       </button>
 
       <div
-        className={`mt-2 max-h-[46vh] overflow-y-auto rounded-3xl border border-white/20 bg-stone-950/72 p-3 shadow-2xl backdrop-blur-xl ${
+        className={`mt-2 max-h-[46vh] overflow-y-auto overscroll-contain rounded-3xl border border-white/20 bg-stone-950/72 p-3 shadow-2xl backdrop-blur-xl max-md:max-h-[42dvh] ${
           isOpen ? 'block' : 'hidden'
         }`}
       >

@@ -669,6 +669,10 @@ export const flyToSite = (map, feature) => {
   // Popup is now managed by Map component state
 };
 
+export const resetMapView = (map, allFeatures, filteredIds) => {
+  fitToAllSites(map, allFeatures, filteredIds);
+};
+
 function getFlyOffset() {
   if (typeof window !== 'undefined' && window.innerWidth < 768) {
     return [0, -120];

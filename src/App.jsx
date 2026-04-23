@@ -6,7 +6,7 @@ import { useHashState } from './hooks/useHashState';
 import { useLayerData } from './hooks/useLayerData';
 import ErrorBoundary from './components/ErrorBoundary';
 import DetailCard from './components/DetailCard';
-import Map, { flyToSite, toggle3D } from './components/Map';
+import Map, { flyToSite, resetMapView, toggle3D } from './components/Map';
 import MapControls from './components/MapControls';
 import BasemapControls from './components/BasemapControls';
 import LayerLegend from './components/LayerLegend';
@@ -105,6 +105,12 @@ function AppContent() {
     }
   }, []);
 
+  const handleResetView = useCallback(() => {
+    if (mapRef.current) {
+      resetMapView(mapRef.current, allFeatures, allFeatures.map((f) => f.id));
+    }
+  }, [allFeatures]);
+
   // Handle basemap switch
   const handleSwitchBasemap = useCallback(
     (basemap) => {
@@ -132,7 +138,7 @@ function AppContent() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-[#111827]">
+    <div className="h-screen h-[100dvh] flex flex-col bg-[#111827]">
       {/* Login Modal */}
       <LoginModal
         isOpen={showLoginModal}
@@ -191,6 +197,7 @@ function AppContent() {
           <MapControls
             is3d={is3DMode}
             onToggle3D={handleToggle3D}
+            onResetView={handleResetView}
           />
 
           {/* Basemap controls */}

@@ -44,7 +44,7 @@ const DetailCard = memo(({ feature, onClose, onOpenCheckin, onOpenLogin }) => {
           <div className="absolute left-1/2 top-2 hidden h-1.5 w-12 -translate-x-1/2 rounded-full bg-white/70 max-md:block" />
           <button
             onClick={onClose}
-            className="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full border border-white/50 bg-stone-950/70 text-xl leading-none text-white shadow-lg backdrop-blur transition hover:bg-rose-600"
+            className="absolute left-3 top-3 grid h-10 w-10 place-items-center rounded-full border border-white/50 bg-stone-950/70 text-xl leading-none text-white shadow-lg backdrop-blur transition hover:bg-rose-600"
             aria-label="Cerrar detalles"
             title="Cerrar detalles"
           >
