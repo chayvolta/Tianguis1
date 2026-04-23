@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
  */
 const MapControls = memo(({ is3d, onToggle3D, onResetView }) => {
   return (
-    <div className="absolute right-5 bottom-28 flex flex-col gap-2 z-10 max-md:right-3 max-md:bottom-[calc(env(safe-area-inset-bottom)+5.25rem)]">
+    <div className="absolute right-5 bottom-28 flex flex-col gap-2 z-10 max-md:right-3 max-md:bottom-[calc(env(safe-area-inset-bottom)+7.75rem)]">
       <button
         onClick={onToggle3D}
         className={`

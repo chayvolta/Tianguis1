@@ -27,7 +27,7 @@ const DetailCard = memo(({ feature, onClose, onOpenCheckin, onOpenLogin }) => {
   return (
     <>
       <article
-        className="max-h-[calc(100vh-10rem)] overflow-hidden rounded-[32px] border border-white/30 bg-[#fffaf0] shadow-[0_24px_80px_rgba(15,23,42,0.35)] max-xl:max-h-[calc(100vh-11rem)] max-md:max-h-[72vh] max-md:rounded-b-none max-md:rounded-t-[30px]"
+        className="max-h-[calc(100vh-10rem)] overflow-hidden rounded-[32px] border border-white/30 bg-[#fffaf0] shadow-[0_24px_80px_rgba(15,23,42,0.35)] max-xl:max-h-[calc(100vh-11rem)] max-md:max-h-[56dvh] max-md:rounded-[24px]"
         onKeyDown={(e) => e.key === 'Escape' && onClose()}
         role="region"
         aria-label="Detalles del sitio prioritario"
@@ -44,7 +44,7 @@ const DetailCard = memo(({ feature, onClose, onOpenCheckin, onOpenLogin }) => {
           <div className="absolute left-1/2 top-2 hidden h-1.5 w-12 -translate-x-1/2 rounded-full bg-white/70 max-md:block" />
           <button
             onClick={onClose}
-            className="absolute left-3 top-3 grid h-10 w-10 place-items-center rounded-full border border-white/50 bg-stone-950/70 text-xl leading-none text-white shadow-lg backdrop-blur transition hover:bg-rose-600"
+            className="absolute left-3 top-3 grid h-10 w-10 place-items-center rounded-full border border-white/50 bg-stone-950/70 text-xl leading-none text-white shadow-lg backdrop-blur transition hover:bg-rose-600 max-md:h-8 max-md:w-8 max-md:text-base"
             aria-label="Cerrar detalles"
             title="Cerrar detalles"
           >
@@ -52,37 +52,37 @@ const DetailCard = memo(({ feature, onClose, onOpenCheckin, onOpenLogin }) => {
           </button>
         </div>
 
-        <div className="max-h-[calc(100vh-24rem)] overflow-y-auto px-5 pb-5 max-xl:max-h-[calc(100vh-24rem)] max-md:max-h-[calc(72vh-13rem)] max-md:px-4">
-          <div className="-mt-2 mb-3 flex items-center justify-between gap-3">
-            <span className="rounded-full bg-stone-950 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.22em] text-amber-100">
+        <div className="max-h-[calc(100vh-24rem)] overflow-y-auto px-5 pb-5 max-xl:max-h-[calc(100vh-24rem)] max-md:max-h-[calc(56dvh-11rem)] max-md:px-3 max-md:pb-3">
+          <div className="-mt-2 mb-3 flex items-center justify-between gap-3 max-md:mb-2">
+            <span className="rounded-full bg-stone-950 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.22em] text-amber-100 max-md:px-2.5 max-md:py-1 max-md:text-[10px] max-md:tracking-[0.16em]">
               Sitio {siteNumber}
             </span>
-            <span className="text-xs font-bold uppercase tracking-[0.18em] text-stone-500">
+            <span className="text-xs font-bold uppercase tracking-[0.18em] text-stone-500 max-md:text-[10px] max-md:tracking-[0.14em]">
               14Sitios_
             </span>
           </div>
 
-          <h2 className="text-2xl font-black leading-tight tracking-tight text-stone-950 max-md:text-xl">
+          <h2 className="text-2xl font-black leading-tight tracking-tight text-stone-950 max-md:text-lg">
             {siteName}
           </h2>
 
           <div
-            className="mt-3 space-y-2 text-sm leading-relaxed text-stone-700 max-md:line-clamp-4"
+            className="mt-3 space-y-2 text-sm leading-relaxed text-stone-700 max-md:mt-2 max-md:text-[13px] max-md:leading-snug max-md:line-clamp-4"
             dangerouslySetInnerHTML={{ __html: details.description }}
           />
 
           {coords && (
-            <div className="mt-4 rounded-2xl border border-stone-200 bg-white/65 p-3 text-xs font-semibold text-stone-600">
+            <div className="mt-4 rounded-2xl border border-stone-200 bg-white/65 p-3 text-xs font-semibold text-stone-600 max-md:mt-3 max-md:rounded-xl max-md:p-2 max-md:text-[11px]">
               Coordenadas: {coords[1].toFixed(5)}, {coords[0].toFixed(5)}
             </div>
           )}
 
-          <div className="sticky bottom-0 -mx-5 mt-4 grid grid-cols-2 gap-3 bg-gradient-to-t from-[#fffaf0] via-[#fffaf0] to-transparent px-5 pb-1 pt-5 max-md:-mx-4 max-md:px-4">
+          <div className="sticky bottom-0 -mx-5 mt-4 grid grid-cols-2 gap-3 bg-gradient-to-t from-[#fffaf0] via-[#fffaf0] to-transparent px-5 pb-1 pt-5 max-md:-mx-3 max-md:mt-3 max-md:gap-2 max-md:px-3 max-md:pt-4">
             <a
               href={googleMapsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-2xl bg-stone-950 px-4 py-3 text-sm font-black text-white no-underline shadow-lg transition hover:-translate-y-0.5 hover:bg-stone-800"
+              className="flex items-center justify-center gap-2 rounded-2xl bg-stone-950 px-4 py-3 text-sm font-black text-white no-underline shadow-lg transition hover:-translate-y-0.5 hover:bg-stone-800 max-md:rounded-xl max-md:px-3 max-md:py-2.5 max-md:text-xs"
               aria-label={`Como llegar a ${siteName}`}
             >
               Como llegar
@@ -91,7 +91,7 @@ const DetailCard = memo(({ feature, onClose, onOpenCheckin, onOpenLogin }) => {
             <button
               onClick={() => (isAuthenticated ? onOpenCheckin?.(feature) : onOpenLogin?.())}
               disabled={isVisited}
-              className={`rounded-2xl px-4 py-3 text-sm font-black shadow-lg transition ${
+              className={`rounded-2xl px-4 py-3 text-sm font-black shadow-lg transition max-md:rounded-xl max-md:px-3 max-md:py-2.5 max-md:text-xs ${
                 isVisited
                   ? 'cursor-not-allowed border border-emerald-300 bg-emerald-100 text-emerald-800'
                   : 'bg-gradient-to-r from-rose-500 via-orange-500 to-amber-400 text-white hover:-translate-y-0.5'

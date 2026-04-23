@@ -23,7 +23,7 @@ const ImageCarousel = ({ images, alt, onExpand }) => {
   if (!images || images.length === 0) return null;
 
   return (
-    <div className="relative w-full h-[200px] mb-4 bg-gray-100 rounded-xl overflow-hidden group shrink-0 max-xl:h-[170px] max-md:h-[150px] max-md:rounded-b-2xl max-md:rounded-t-[30px]">
+    <div className="relative w-full h-[200px] mb-4 bg-gray-100 rounded-xl overflow-hidden group shrink-0 max-xl:h-[170px] max-md:h-[128px] max-md:mb-3 max-md:rounded-xl">
       {/* Main Image - Click to Expand */}
       <div 
         className="w-full h-full cursor-zoom-in"

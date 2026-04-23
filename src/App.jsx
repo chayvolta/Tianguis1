@@ -160,7 +160,7 @@ function AppContent() {
       <main className="flex-1 flex flex-col overflow-hidden relative">
         {/* Detail Card - Floating */}
         {isCardVisible && selectedFeature && (
-          <div className="absolute top-5 right-5 z-20 w-[390px] max-xl:w-[360px] max-md:inset-x-0 max-md:bottom-0 max-md:top-auto max-md:w-auto">
+          <div className="absolute top-5 right-5 z-20 w-[390px] max-xl:w-[360px] max-md:inset-x-2 max-md:bottom-[calc(env(safe-area-inset-bottom)+11rem)] max-md:top-auto max-md:w-auto">
             <DetailCard 
               feature={selectedFeature}
               onClose={handleCloseCard}
