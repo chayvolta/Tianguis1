@@ -69,6 +69,27 @@ export const getFirstCoord2D = (geom) => {
 };
 
 /**
+ * Recursively extracts all [lon, lat] coordinates from any GeoJSON geometry
+ * @param {Object} geom - GeoJSON geometry
+ * @returns {Array} Array of [lon, lat] coordinates
+ */
+export const getAllCoords = (geom) => {
+  if (!geom || !geom.coordinates) return [];
+  const { type, coordinates } = geom;
+
+  const flatten = (arr, depth) => {
+    return arr.flat(depth).filter((c) => Array.isArray(c) && typeof c[0] === 'number');
+  };
+
+  if (type === 'Point') return [coordinates];
+  if (type === 'LineString' || type === 'MultiPoint') return flatten(coordinates, 0);
+  if (type === 'Polygon' || type === 'MultiLineString') return flatten(coordinates, 1);
+  if (type === 'MultiPolygon') return flatten(coordinates, 2);
+
+  return [];
+};
+
+/**
  * Calculates bounding box from an array of coordinates
  * @param {Array} coords - Array of [lon, lat] coordinates
  * @returns {Array|null} [[minX, minY], [maxX, maxY]] or null
@@ -107,28 +128,29 @@ export const getPlaceholderImage = (seed, size = '400/300', salt = 0) => {
 };
 
 /**
- * Returns detailed mock data for a site
+ * Returns detailed data for a site
  * @param {Object} feature - The site feature
  * @returns {Object} Site details (images, description, etc.)
  */
 export const getSiteDetails = (feature) => {
-  const siteName = feature?.properties?.__label || 'Sitio';
-  // Generate 3 variations of images
-  const images = [
-    getPlaceholderImage(siteName, '800/600', 0),
-    getPlaceholderImage(siteName, '800/600', 100),
-    getPlaceholderImage(siteName, '800/600', 200),
-  ];
+  if (!feature) return { images: [], description: '' };
 
-  const description = `
-    <p><strong>${siteName}</strong> forma parte de la capa prioritaria <strong>14Sitios_</strong>, el conjunto principal de puntos para este geoportal.</p>
-    <p>La ficha concentra informacion de visita y ubicacion para orientar el recorrido patrimonial por el centro historico y la zona tradicional de Acapulco.</p>
-    <p>Usa las capas de ruta, playas, estacionamientos y sanitarios como apoyo visual; las cards se mantienen reservadas para estos 14 puntos.</p>
-  `;
+  const siteId = feature.id || feature.properties.id;
+  const rawDescription = feature.properties.__description || '';
+
+  // Format description: split by period and wrap in justified paragraphs
+  const formattedDescription = rawDescription
+    .split('. ')
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0)
+    .map((s) => {
+      const text = s.endsWith('.') ? s : s + '.';
+      return `<p class="mb-4 text-justify leading-relaxed">${text}</p>`;
+    })
+    .join('');
 
   return {
-    images,
-    description,
-    imagesCount: images.length,
+    images: [`/assets/fotos_cards/${siteId}.webp`],
+    description: formattedDescription,
   };
 };

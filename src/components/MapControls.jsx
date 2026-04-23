@@ -13,7 +13,7 @@ const MapControls = memo(({ is3d, onToggle3D, onResetView }) => {
         className={`
           w-11 h-11 flex items-center justify-center rounded-2xl border cursor-pointer transition shadow-xl backdrop-blur-xl
           ${is3d 
-            ? 'border-amber-200 bg-amber-300 text-stone-950' 
+            ? 'border-secondary bg-primary text-stone-950' 
             : 'border-white/25 bg-stone-950/65 text-white hover:bg-white/20'
           }
         `}

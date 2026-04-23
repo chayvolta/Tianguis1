@@ -123,7 +123,7 @@ function AppContent() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-stone-100">
-        <div className="text-stone-700">Cargando circuito patrimonial...</div>
+        <div className="text-stone-700">Cargando circuito de la Bahía Histórica de Acapulco...</div>
       </div>
     );
   }
@@ -176,16 +176,19 @@ function AppContent() {
           aria-label="Mapa 3D"
         >
           <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-40 bg-gradient-to-b from-stone-950/55 to-transparent" />
-          <div className="pointer-events-none absolute left-4 top-4 z-10 max-w-[260px] rounded-2xl border border-white/15 bg-stone-950/55 px-3.5 py-3 text-white shadow-xl backdrop-blur-xl max-md:left-3 max-md:right-[4.5rem] max-md:top-3 max-md:max-w-none max-md:px-3 max-md:py-2.5">
-            <p className="text-[9px] font-bold uppercase tracking-[0.28em] text-amber-200">
-              Circuito PVF
-            </p>
-            <h1 className="mt-1 text-base font-black leading-tight tracking-tight max-md:text-sm">
-              14 sitios prioritarios
-            </h1>
-            <p className="mt-1 text-[11px] leading-snug text-stone-100/80 max-md:hidden">
-              Cards solo en 14Sitios_. Capas auxiliares como contexto.
-            </p>
+          {/* Logos Overlay */}
+          <div className="pointer-events-none absolute left-5 top-5 z-20 flex items-center gap-6 rounded-[28px] border border-white/15 bg-stone-950/45 px-6 py-3.5 shadow-2xl backdrop-blur-xl max-md:left-3 max-md:top-3 max-md:gap-4 max-md:px-4 max-md:py-2.5">
+            <img
+              src="/assets/mapa_logos/Logo_del_FONATUR.svg"
+              alt="FONATUR"
+              className="h-10 w-auto object-contain max-md:h-7"
+            />
+            <div className="h-10 w-px bg-white/20 max-md:h-7" />
+            <img
+              src="/assets/mapa_logos/Logo Bahia Historica-08.png"
+              alt="Pasaporte de la Bahía Histórica de Acapulco"
+              className="h-20 w-auto object-contain max-md:h-14"
+            />
           </div>
 
           <Map
@@ -220,7 +223,7 @@ function AppContent() {
               onClick={() => setShowTip(!showTip)}
               className={`
                 w-10 h-10 flex items-center justify-center rounded-2xl border cursor-pointer transition shadow-lg backdrop-blur-xl
-                ${showTip ? 'bg-amber-400 border-amber-200 text-stone-950' : 'border-white/25 bg-stone-950/55 text-white hover:bg-white/20'}
+                ${showTip ? 'bg-primary border-secondary text-stone-950' : 'border-white/25 bg-stone-950/55 text-white hover:bg-white/20'}
               `}
               title={showTip ? "Ocultar ayuda" : "Mostrar ayuda de navegación"}
               aria-label="Ayuda de navegacion"

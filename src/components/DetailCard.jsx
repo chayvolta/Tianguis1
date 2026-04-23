@@ -44,21 +44,24 @@ const DetailCard = memo(({ feature, onClose, onOpenCheckin, onOpenLogin }) => {
           <div className="absolute left-1/2 top-2 hidden h-1.5 w-12 -translate-x-1/2 rounded-full bg-white/70 max-md:block" />
           <button
             onClick={onClose}
-            className="absolute left-3 top-3 grid h-10 w-10 place-items-center rounded-full border border-white/50 bg-stone-950/70 text-xl leading-none text-white shadow-lg backdrop-blur transition hover:bg-rose-600 max-md:h-8 max-md:w-8 max-md:text-base"
+            className="absolute left-3 top-3 grid h-10 w-10 place-items-center rounded-full border border-white/50 bg-stone-950/70 text-white shadow-lg backdrop-blur transition hover:bg-primary max-md:h-8 max-md:w-8"
             aria-label="Cerrar detalles"
             title="Cerrar detalles"
           >
-            x
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" className="max-md:w-4 max-md:h-4">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
           </button>
         </div>
 
         <div className="max-h-[calc(100vh-24rem)] overflow-y-auto px-5 pb-5 max-xl:max-h-[calc(100vh-24rem)] max-md:max-h-[calc(56dvh-11rem)] max-md:px-3 max-md:pb-3">
           <div className="-mt-2 mb-3 flex items-center justify-between gap-3 max-md:mb-2">
-            <span className="rounded-full bg-stone-950 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.22em] text-amber-100 max-md:px-2.5 max-md:py-1 max-md:text-[10px] max-md:tracking-[0.16em]">
+            <span className="rounded-full bg-stone-950 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.22em] text-secondary max-md:px-2.5 max-md:py-1 max-md:text-[10px] max-md:tracking-[0.16em]">
               Sitio {siteNumber}
             </span>
             <span className="text-xs font-bold uppercase tracking-[0.18em] text-stone-500 max-md:text-[10px] max-md:tracking-[0.14em]">
-              14Sitios_
+              Bahía Histórica de Acapulco
             </span>
           </div>
 
@@ -67,7 +70,7 @@ const DetailCard = memo(({ feature, onClose, onOpenCheckin, onOpenLogin }) => {
           </h2>
 
           <div
-            className="mt-3 space-y-2 text-sm leading-relaxed text-stone-700 max-md:mt-2 max-md:text-[13px] max-md:leading-snug max-md:line-clamp-4"
+            className="mt-3 space-y-1 text-sm leading-relaxed text-stone-700 text-justify max-md:mt-2 max-md:text-[13px] max-md:leading-snug"
             dangerouslySetInnerHTML={{ __html: details.description }}
           />
 
@@ -77,7 +80,7 @@ const DetailCard = memo(({ feature, onClose, onOpenCheckin, onOpenLogin }) => {
             </div>
           )}
 
-          <div className="sticky bottom-0 -mx-5 mt-4 grid grid-cols-2 gap-3 bg-gradient-to-t from-[#fffaf0] via-[#fffaf0] to-transparent px-5 pb-1 pt-5 max-md:-mx-3 max-md:mt-3 max-md:gap-2 max-md:px-3 max-md:pt-4">
+          <div className="sticky bottom-0 -mx-5 mt-4 grid grid-cols-1 gap-3 bg-gradient-to-t from-[#fffaf0] via-[#fffaf0] to-transparent px-5 pb-1 pt-5 max-md:-mx-3 max-md:mt-3 max-md:gap-2 max-md:px-3 max-md:pt-4">
             <a
               href={googleMapsUrl}
               target="_blank"
@@ -87,19 +90,6 @@ const DetailCard = memo(({ feature, onClose, onOpenCheckin, onOpenLogin }) => {
             >
               Como llegar
             </a>
-
-            <button
-              onClick={() => (isAuthenticated ? onOpenCheckin?.(feature) : onOpenLogin?.())}
-              disabled={isVisited}
-              className={`rounded-2xl px-4 py-3 text-sm font-black shadow-lg transition max-md:rounded-xl max-md:px-3 max-md:py-2.5 max-md:text-xs ${
-                isVisited
-                  ? 'cursor-not-allowed border border-emerald-300 bg-emerald-100 text-emerald-800'
-                  : 'bg-gradient-to-r from-rose-500 via-orange-500 to-amber-400 text-white hover:-translate-y-0.5'
-              }`}
-              aria-label={isVisited ? 'Ya visitado' : 'Hacer check-in'}
-            >
-              {isVisited ? 'Ya visitado' : 'Hacer check-in'}
-            </button>
           </div>
         </div>
       </article>

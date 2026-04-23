@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Papa from 'papaparse';
 import { GEOJSON_URL } from '../constants';
 import { pickLabel } from '../utils';
 
@@ -17,15 +18,24 @@ export const useGeoJSON = () => {
         setLoading(true);
         setError(null);
 
-        const response = await fetch(GEOJSON_URL, { cache: 'no-store' });
+        // Fetch both GeoJSON and Info CSV
+        const [geoResponse, csvResponse] = await Promise.all([
+          fetch(GEOJSON_URL, { cache: 'no-store' }),
+          fetch('/assets/info/acapulco_bahia_historica_cards_simple.csv', { cache: 'no-store' })
+        ]);
 
-        if (!response.ok) {
-          throw new Error(
-            `Failed to load GeoJSON: ${response.status} ${response.statusText}`
-          );
-        }
+        if (!geoResponse.ok) throw new Error(`Failed to load GeoJSON: ${geoResponse.status}`);
+        if (!csvResponse.ok) throw new Error(`Failed to load CSV: ${csvResponse.status}`);
 
-        const json = await response.json();
+        const json = await geoResponse.json();
+        const csvText = await csvResponse.text();
+
+        // Parse CSV
+        const parsedCsv = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+        const infoMap = new Map();
+        parsedCsv.data.forEach(row => {
+          if (row.id) infoMap.set(Number(row.id), row.descripcion_completa);
+        });
 
         if (!json || json.type !== 'FeatureCollection') {
           throw new Error('Invalid GeoJSON: not a FeatureCollection');
@@ -42,17 +52,19 @@ export const useGeoJSON = () => {
           .map((f, idx) => {
             const props = f.properties || {};
             const label = pickLabel(props, idx);
-            const sourceId = Number(props.id);
-            const folder = '14 sitios prioritarios';
+            const siteId = Number(props.id);
+            const folder = 'Bahía Histórica';
+            const description = infoMap.get(siteId) || '';
 
             return {
               ...f,
-              id: Number.isFinite(sourceId) ? sourceId : idx + 1,
+              id: siteId, // Use the ID from properties as the feature ID
               properties: {
                 ...props,
                 __label: label,
                 __folder: folder,
-                __siteNumber: Number.isFinite(sourceId) ? sourceId : idx + 1,
+                __siteNumber: idx + 1,
+                __description: description
               },
             };
           });

@@ -16,7 +16,7 @@ const LayerLegend = memo(({ visibleLayers, onToggle }) => {
         aria-expanded={isOpen}
       >
         <span>
-          <span className="block text-[9px] font-bold uppercase tracking-[0.24em] text-amber-200">
+          <span className="block text-[9px] font-bold uppercase tracking-[0.24em] text-secondary">
             Simbologia
           </span>
           <span className="text-xs font-black">
@@ -35,7 +35,7 @@ const LayerLegend = memo(({ visibleLayers, onToggle }) => {
       >
         <div className="mb-2.5 flex items-start justify-between gap-2 border-b border-white/10 pb-2.5">
           <div>
-            <p className="text-[9px] font-bold uppercase tracking-[0.24em] text-amber-200">
+            <p className="text-[9px] font-bold uppercase tracking-[0.24em] text-secondary">
               Simbologia
             </p>
             <h3 className="mt-0.5 text-sm font-black">Capas</h3>
@@ -47,7 +47,7 @@ const LayerLegend = memo(({ visibleLayers, onToggle }) => {
 
         {loading ? (
           <div className="rounded-2xl bg-white/10 px-3 py-3 text-center text-xs text-stone-200">
-            Cargando capas PVF...
+            Cargando capas ...
           </div>
         ) : (
           <div className="space-y-2">
@@ -62,9 +62,9 @@ const LayerLegend = memo(({ visibleLayers, onToggle }) => {
                 14
               </span>
               <span className="min-w-0">
-                <span className="block text-xs font-black">14 sitios prioritarios</span>
+                <span className="block text-xs font-black">14 sitios en la Bahía Histórica de Acapulco</span>
                 <span className="mt-0.5 block text-[11px] leading-tight text-stone-200 max-lg:hidden">
-                  Unicos puntos que abren ficha y ruta en Google Maps.
+                  Puntos turísticos y de interes.
                 </span>
               </span>
             </label>
@@ -80,10 +80,18 @@ const LayerLegend = memo(({ visibleLayers, onToggle }) => {
                   onChange={() => onToggle(layer.id)}
                   className="h-3.5 w-3.5 cursor-pointer rounded border-white/40 bg-transparent"
                 />
-                <span
-                  className={`shrink-0 ${layer.type === 'Lines' ? 'h-1.5 w-7 rounded-full' : 'h-3.5 w-3.5 rounded-full ring-2 ring-white/10'}`}
-                  style={{ backgroundColor: layer.color }}
-                />
+                {layer.icon ? (
+                  <img 
+                    src={layer.icon} 
+                    alt={layer.name} 
+                    className="h-6 w-6 shrink-0 object-contain drop-shadow-[0_0_5px_rgba(255,255,255,0.8)]" 
+                  />
+                ) : (
+                  <span
+                    className={`shrink-0 ${layer.type === 'Lines' ? 'h-1.5 w-7 rounded-full' : 'h-3.5 w-3.5 rounded-full ring-2 ring-white/10'}`}
+                    style={{ backgroundColor: layer.color }}
+                  />
+                )}
                 <span className="min-w-0">
                   <span className="block truncate text-xs font-bold">{layer.name}</span>
                   <span className="mt-0.5 block text-[11px] leading-tight text-stone-300 max-lg:hidden">

@@ -4,7 +4,7 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useAppContext } from '../context/AppContext';
 import { MAP_CONFIG, PREFERS_REDUCED_MOTION } from '../constants';
-import { getFirstCoord2D, getBounds, escapeHtml } from '../utils';
+import { getFirstCoord2D, getBounds, escapeHtml, getAllCoords } from '../utils';
 
 /**
  * Map component - MapLibre GL map with 3D terrain
@@ -16,6 +16,7 @@ const Map = ({ onSiteSelect, ref }) => {
   const mapRef = useRef(null);
   const popupRef = useRef(null);
   const loadedSourcesRef = useRef(new Set());
+  const layerBoundsRef = useRef({});
   const {
     allFeatures,
     filteredIds,
@@ -77,14 +78,33 @@ const Map = ({ onSiteSelect, ref }) => {
     });
 
     map.on('load', () => {
-      // Keep a custom icon available for future symbol layers.
-      const svgString = `<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path fill='#e11d48' stroke='white' stroke-width='2' d='M12 2 L22 22 L2 22 Z'/></svg>`;
-      const img = new Image(24, 24);
+      // Cargar SVGs personalizados como imágenes
+      const iconDefs = [
+        { name: 'estacionamiento', url: '/assets/estacionamiento.svg' },
+        { name: 'playas', url: '/assets/Playas.svg' },
+        { name: 'wc', url: '/assets/wc.svg' },
+      ];
 
-      img.onload = () => {
-        console.log('Monument icon loaded');
-        map.addImage('monument', img);
+      let loadedIcons = 0;
+      iconDefs.forEach(({ name, url }) => {
+        const img = new window.Image(48, 48);
+        img.onload = () => {
+          map.addImage(name, img, { pixelRatio: 2 });
+          loadedIcons++;
+          if (loadedIcons === iconDefs.length) {
+            // Cuando todos los íconos estén listos, continuar con el resto
+            setupMap();
+          }
+        };
+        img.onerror = () => {
+          console.error('No se pudo cargar el ícono', name, url);
+          loadedIcons++;
+          if (loadedIcons === iconDefs.length) setupMap();
+        };
+        img.src = url;
+      });
 
+      function setupMap() {
         // Add terrain
         map.addSource('terrain', {
           type: 'raster-dem',
@@ -203,9 +223,7 @@ const Map = ({ onSiteSelect, ref }) => {
         map.on('mouseleave', 'sites-points', () => {
           map.getCanvas().style.cursor = '';
         });
-      };
-
-      img.src = 'data:image/svg+xml,' + encodeURIComponent(svgString);
+      }
     });
 
     mapRef.current = map;
@@ -375,6 +393,7 @@ const Map = ({ onSiteSelect, ref }) => {
         // Handle dynamic layers
         const pointLayerId = `${layer.id}-points`;
         const labelLayerId = `${layer.id}-labels`;
+        const glowLayerId = `${layer.id}-glow`;
         const lineLayerId = `${layer.id}-line`;
         const fillLayerId = `${layer.id}-fill`;
 
@@ -409,6 +428,22 @@ const Map = ({ onSiteSelect, ref }) => {
             type: 'geojson',
             data: layer.path,
           });
+
+          // Pre-calculate bounds for this layer when data arrives
+          map.on('sourcedata', (e) => {
+            if (e.sourceId === sourceId && e.isSourceLoaded) {
+              const source = map.getSource(sourceId);
+              const data = source.serialize().data;
+              if (data && typeof data !== 'string') {
+                const coords = [];
+                (data.features || []).forEach((f) => coords.push(...getAllCoords(f.geometry)));
+                if (coords.length > 0) {
+                  layerBoundsRef.current[sourceId] = getBounds(coords);
+                }
+              }
+            }
+          });
+
           console.log(`Added source: ${sourceId}`);
         } catch (err) {
           console.error(`Error adding source ${sourceId}:`, err);
@@ -418,25 +453,70 @@ const Map = ({ onSiteSelect, ref }) => {
       if (layer.type === 'Points') {
         const pointLayerId = `${sourceId}-points`;
         const labelLayerId = `${sourceId}-labels`;
+        
+        // Determine if we should use an icon
+        const iconName = layer.icon ? layer.icon.split('/').pop().replace('.svg', '').toLowerCase() : null;
+
         if (!map.getLayer(pointLayerId)) {
           try {
             const beforeSites = map.getLayer('sites-points') ? 'sites-points' : undefined;
-            map.addLayer({
-              id: pointLayerId,
-              type: 'circle',
-              source: sourceId,
-              layout: {
-                visibility: layer.visible ? 'visible' : 'none',
-              },
-              paint: {
-                'circle-radius': 6,
-                'circle-color': layer.color,
-                'circle-stroke-color': '#fff7ed',
-                'circle-stroke-width': 1.5,
-                'circle-opacity': 0.82,
-              },
-            }, beforeSites);
-            console.log(`Added point layer: ${pointLayerId}`);
+            
+            if (iconName) {
+              // Use symbol layer for icons
+              map.addLayer({
+                id: pointLayerId,
+                type: 'symbol',
+                source: sourceId,
+                layout: {
+                  visibility: layer.visible ? 'visible' : 'none',
+                  'icon-image': iconName,
+                  'icon-size': 1.1,
+                  'icon-allow-overlap': true,
+                  'icon-ignore-placement': true,
+                },
+                paint: {
+                  'icon-opacity': 0.95,
+                }
+              }, beforeSites);
+            } else {
+              // Use circle layer as fallback
+              map.addLayer({
+                id: pointLayerId,
+                type: 'circle',
+                source: sourceId,
+                layout: {
+                  visibility: layer.visible ? 'visible' : 'none',
+                },
+                paint: {
+                  'circle-radius': 8,
+                  'circle-color': layer.color,
+                  'circle-stroke-color': '#fff',
+                  'circle-stroke-width': 2,
+                  'circle-opacity': 0.9,
+                  'circle-blur': 0.1,
+                },
+              }, beforeSites);
+            }
+
+            // Click handler for service points
+            map.on('click', pointLayerId, (e) => {
+              const feature = e.features && e.features[0];
+              if (!feature) return;
+              const coords = getFirstCoord2D(feature.geometry);
+              if (coords) {
+                map.flyTo({ center: coords, zoom: 16, duration: 1000 });
+                showServicePopup(map, feature, coords);
+              }
+            });
+
+            map.on('mouseenter', pointLayerId, () => {
+              map.getCanvas().style.cursor = 'pointer';
+            });
+            map.on('mouseleave', pointLayerId, () => {
+              map.getCanvas().style.cursor = '';
+            });
+
+            console.log(`Added point layer: ${pointLayerId} (icon: ${iconName || 'none'})`);
           } catch (err) {
             console.error(`Error adding point layer ${pointLayerId}:`, err);
           }
@@ -475,13 +555,6 @@ const Map = ({ onSiteSelect, ref }) => {
               console.error(`Error adding beach label layer ${labelLayerId}:`, err);
             }
           }
-
-          map.on('mouseenter', pointLayerId, () => {
-            map.getCanvas().style.cursor = 'pointer';
-          });
-          map.on('mouseleave', pointLayerId, () => {
-            map.getCanvas().style.cursor = '';
-          });
         }
       } else if (layer.type === 'Lines') {
         const lineLayerId = `${sourceId}-line`;
@@ -504,6 +577,22 @@ const Map = ({ onSiteSelect, ref }) => {
                 'line-dasharray': [0.5, 1.4],
               },
             }, beforeSites);
+
+            // Click handler for lines
+            map.on('click', lineLayerId, (e) => {
+              const feature = e.features && e.features[0];
+              const coords = [e.lngLat.lng, e.lngLat.lat];
+              map.flyTo({ center: coords, zoom: 16, duration: 1000 });
+              showServicePopup(map, feature, coords);
+            });
+
+            map.on('mouseenter', lineLayerId, () => {
+              map.getCanvas().style.cursor = 'pointer';
+            });
+            map.on('mouseleave', lineLayerId, () => {
+              map.getCanvas().style.cursor = '';
+            });
+
             console.log(`Added line layer: ${lineLayerId}`);
           } catch (err) {
             console.error(`Error adding line layer ${lineLayerId}:`, err);
@@ -511,6 +600,8 @@ const Map = ({ onSiteSelect, ref }) => {
         }
       } else {
         const fillLayerId = `${sourceId}-fill`;
+        const lineLayerId = `${sourceId}-line`;
+
         if (!map.getLayer(fillLayerId)) {
           try {
             const beforeSites = map.getLayer('sites-points') ? 'sites-points' : undefined;
@@ -526,13 +617,21 @@ const Map = ({ onSiteSelect, ref }) => {
                 'fill-opacity': 0.24,
               },
             }, beforeSites);
+            
+            // Click handler for fill
+            map.on('click', fillLayerId, (e) => {
+              const feature = e.features && e.features[0];
+              const coords = [e.lngLat.lng, e.lngLat.lat];
+              map.flyTo({ center: coords, zoom: 16, duration: 1000 });
+              showServicePopup(map, feature, coords);
+            });
+
             console.log(`Added fill layer: ${fillLayerId}`);
           } catch (err) {
             console.error(`Error adding fill layer ${fillLayerId}:`, err);
           }
         }
 
-        const lineLayerId = `${sourceId}-line`;
         if (!map.getLayer(lineLayerId)) {
           try {
             const beforeSites = map.getLayer('sites-points') ? 'sites-points' : undefined;
@@ -558,7 +657,7 @@ const Map = ({ onSiteSelect, ref }) => {
     });
   }, [dynamicLayers]);
 
-  // Update filter
+  // Handle basemap switch
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !map.isStyleLoaded()) return;
@@ -582,6 +681,44 @@ const Map = ({ onSiteSelect, ref }) => {
       map.setLayoutProperty('streets-layer', 'visibility', 'visible');
     }
   }, [currentBasemap]);
+
+  // Zoom to fit all visible layers when visibility changes
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !map.isStyleLoaded()) return;
+
+    // Use a small delay to ensure source data is loaded for newly enabled layers
+    const timer = setTimeout(() => {
+      const visibleLayers = layers.filter((l) => l.visible);
+      const allCoords = [];
+
+      visibleLayers.forEach((layer) => {
+        if (layer.id === 'sites') {
+          const coords = allFeatures
+            .filter((f) => filteredIds.includes(f.id))
+            .map((f) => getFirstCoord2D(f.geometry))
+            .filter(Boolean);
+          allCoords.push(...coords);
+        } else if (layerBoundsRef.current[layer.id]) {
+          const [[minX, minY], [maxX, maxY]] = layerBoundsRef.current[layer.id];
+          allCoords.push([minX, minY], [maxX, maxY]);
+        }
+      });
+
+      if (allCoords.length > 0) {
+        const bounds = getBounds(allCoords);
+        if (bounds) {
+          map.fitBounds(bounds, {
+            padding: getFitPadding(),
+            duration: PREFERS_REDUCED_MOTION ? 0 : 1000,
+            pitch: map.getPitch(),
+          });
+        }
+      }
+    }, 200);
+
+    return () => clearTimeout(timer);
+  }, [layers, filteredIds, allFeatures]);
 
   return (
     <div
@@ -633,6 +770,31 @@ function getFitPadding() {
   }
 
   return { top: 120, right: 110, bottom: 90, left: 360 };
+}
+
+// Helper function for service popups
+function showServicePopup(map, feature, coords) {
+  const name =
+    feature.properties.NOMBRE ||
+    feature.properties.Nombre ||
+    feature.properties.name ||
+    feature.properties.label ||
+    'Servicio';
+  const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${coords[1]},${coords[0]}`;
+
+  new maplibregl.Popup({ offset: 15, className: 'service-popup' })
+    .setLngLat(coords)
+    .setHTML(`
+      <div class="p-3.5 bg-white rounded-xl shadow-xl min-w-[180px]">
+        <h3 class="font-black text-stone-900 text-sm mb-3 leading-tight">${escapeHtml(name)}</h3>
+        <a href="${googleMapsUrl}" target="_blank" rel="noopener noreferrer" 
+           class="flex items-center justify-center gap-2 w-full bg-stone-950 text-white text-[11px] font-black uppercase tracking-wider py-2.5 px-4 rounded-xl hover:bg-primary transition-colors no-underline">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+          Cómo llegar
+        </a>
+      </div>
+    `)
+    .addTo(map);
 }
 
 export default Map;
