@@ -8,7 +8,7 @@ const LayerLegend = memo(({ visibleLayers, onToggle }) => {
   const activeContextLayers = layers.filter((layer) => visibleLayers.includes(layer.id)).length;
 
   return (
-    <div className="absolute bottom-20 left-5 z-30 w-[270px] text-white max-lg:left-3 max-md:bottom-[calc(env(safe-area-inset-bottom)+4rem)] max-md:w-[min(320px,calc(100%-5rem))]">
+    <div className="absolute bottom-20 left-5 z-30 w-[270px] text-white max-lg:left-3 max-md:bottom-[calc(env(safe-area-inset-bottom)+6.75rem)] max-md:w-[min(320px,calc(100%-5rem))]">
       <button
         type="button"
         onClick={() => setIsOpen((value) => !value)}
