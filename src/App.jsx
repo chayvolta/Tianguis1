@@ -185,7 +185,7 @@ function AppContent() {
             />
             <div className="h-10 w-px bg-white/20 max-md:h-7" />
             <img
-              src="/assets/mapa_logos/Logo Bahia Historica-08.png"
+              src="/assets/mapa_logos/Logo Bahia Historica-10.png"
               alt="Pasaporte de la Bahía Histórica de Acapulco"
               className="h-20 w-auto object-contain max-md:h-14"
             />
